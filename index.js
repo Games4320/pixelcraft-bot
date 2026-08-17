@@ -2,7 +2,17 @@ require('dotenv').config();
 const { Client, GatewayIntentBits, Collection, Partials } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
 const { onInviteCreate, onInviteDelete } = require('./utils/inviteTracker');
+
+// Optional lightweight HTTP server for Render / Cloud hosting health checks
+const PORT = process.env.PORT || 3000;
+http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('PixelCraft Discord Bot is running online 24/7!');
+}).listen(PORT, () => {
+    console.log(`[HTTP Server] Health check listening on port ${PORT}`);
+});
 
 // Initialize Discord Client with all required intents
 const client = new Client({
