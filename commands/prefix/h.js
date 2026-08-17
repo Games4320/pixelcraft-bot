@@ -2,6 +2,10 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { createEmbed, createErrorEmbed, COLORS } = require('../../utils/embedBuilder');
 const { getGuildConfig } = require('../../utils/database');
 
+// Cooldown map: key = `${guildId}_${userId}`, value = expiration timestamp
+const cooldowns = new Map();
+const COOLDOWN_SECONDS = 30;
+
 module.exports = {
     name: 'h',
     description: 'שליחת פניית תמיכה עם קטגוריה וסיבה',
@@ -17,8 +21,23 @@ module.exports = {
             return message.reply({ embeds: [errorEmbed] });
         }
 
+        // Check 30-second cooldown per user
+        const now = Date.now();
+        const cooldownKey = `${message.guild.id}_${message.author.id}`;
+        if (cooldowns.has(cooldownKey)) {
+            const expirationTime = cooldowns.get(cooldownKey);
+            if (now < expirationTime) {
+                const timeLeft = Math.ceil((expirationTime - now) / 1000);
+                const cooldownEmbed = createErrorEmbed(
+                    `⏳ **אנא המתן!** ישנו קולדאון בין פניות.\n` +
+                    `עליך להמתין עוד **${timeLeft}** שניות לפני שתוכל להשתמש שוב ב-\`!h\`.`
+                );
+                return message.reply({ embeds: [cooldownEmbed] });
+            }
+        }
+
         const knownCategories = ['תמיכה', 'דיווח', 'שאלה', 'תקלה', 'אחר', 'support', 'report', 'other', 'bug'];
-        
+
         let category = 'תמיכה כללית';
         let reason = fullInput;
 
@@ -30,7 +49,7 @@ module.exports = {
 
         const config = getGuildConfig(message.guild.id);
         const template = config.hMessage || "תודה שפנית אלינו! חבר צוות יטפל בבקשתך בהקדם.\n**קטגוריה:** {category}\n**סיבה:** {reason}";
-        
+
         const formattedMessage = template
             .replace(/{category}/g, category)
             .replace(/{reason}/g, reason);
@@ -57,5 +76,9 @@ module.exports = {
         const row = new ActionRowBuilder().addComponents(claimBtn);
 
         await message.reply({ embeds: [embed], components: [row] });
+
+        // Set cooldown after successful execution
+        cooldowns.set(cooldownKey, now + (COOLDOWN_SECONDS * 1000));
+        setTimeout(() => cooldowns.delete(cooldownKey), COOLDOWN_SECONDS * 1000);
     }
 };
