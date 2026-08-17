@@ -1,8 +1,8 @@
-const { 
-    ActionRowBuilder, 
-    ModalBuilder, 
-    TextInputBuilder, 
-    TextInputStyle, 
+const {
+    ActionRowBuilder,
+    ModalBuilder,
+    TextInputBuilder,
+    TextInputStyle,
     RoleSelectMenuBuilder,
     ButtonBuilder,
     ButtonStyle,
@@ -94,16 +94,16 @@ async function handleHClaimButton(interaction) {
 
     if (config.hClaimRole) {
         // If a specific claim role is configured
-        isAllowed = member.roles.cache.has(config.hClaimRole) || 
-                    member.permissions.has(PermissionsBitField.Flags.ManageGuild) || 
+        isAllowed = member.roles.cache.has(config.hClaimRole) ||
+                    member.permissions.has(PermissionsBitField.Flags.ManageGuild) ||
                     member.permissions.has(PermissionsBitField.Flags.Administrator);
     } else {
         // Default permission check: Staff role or ManageGuild / Admin
-        isAllowed = member.permissions.has(PermissionsBitField.Flags.ManageGuild) || 
+        isAllowed = member.permissions.has(PermissionsBitField.Flags.ManageGuild) ||
                     member.permissions.has(PermissionsBitField.Flags.Administrator) ||
-                    member.roles.cache.some(r => 
-                        r.name.toLowerCase().includes('staff') || 
-                        r.name.toLowerCase().includes('admin') || 
+                    member.roles.cache.some(r =>
+                        r.name.toLowerCase().includes('staff') ||
+                        r.name.toLowerCase().includes('admin') ||
                         r.name.toLowerCase().includes('mod') ||
                         r.name.includes('צוות') ||
                         r.name.includes('מנהל')
@@ -160,9 +160,9 @@ async function handleXPShopCountModal(interaction) {
     const count = parseInt(rawCount, 10);
 
     if (isNaN(count) || count < 1 || count > 5) {
-        return interaction.reply({ 
-            embeds: [createErrorEmbed('אנא הזן מספר תפקידים תקין בין 1 ל-5.')], 
-            ephemeral: true 
+        return interaction.reply({
+            embeds: [createErrorEmbed('אנא הזן מספר תפקידים תקין בין 1 ל-5.')],
+            ephemeral: true
         });
     }
 
@@ -212,9 +212,9 @@ async function handleXPShopRoleSelect(interaction) {
     session.roles[slotIndex] = selectedRoleId;
     const role = interaction.guild.roles.cache.get(selectedRoleId);
 
-    await interaction.reply({ 
-        content: `✅ משבצת #${slotIndex + 1} הוגדרה לתפקיד **${role ? role.name : selectedRoleId}**`, 
-        ephemeral: true 
+    await interaction.reply({
+        content: `✅ משבצת #${slotIndex + 1} הוגדרה לתפקיד **${role ? role.name : selectedRoleId}**`,
+        ephemeral: true
     });
 }
 
@@ -226,9 +226,9 @@ async function handleXPShopOpenCostsModal(interaction) {
 
     for (let i = 0; i < session.count; i++) {
         if (!session.roles[i]) {
-            return interaction.reply({ 
-                content: `❌ אנא בחר תפקיד עבור משבצת #${i + 1} לפני שתמשיך!`, 
-                ephemeral: true 
+            return interaction.reply({
+                content: `❌ אנא בחר תפקיד עבור משבצת #${i + 1} לפני שתמשיך!`,
+                ephemeral: true
             });
         }
     }
@@ -268,9 +268,9 @@ async function handleXPShopCostsModal(interaction) {
         const xpCost = parseInt(rawXP, 10);
 
         if (isNaN(xpCost) || xpCost <= 0) {
-            return interaction.reply({ 
-                embeds: [createErrorEmbed(`מחיר XP לא תקין עבור משבצת #${i + 1}. חייב להיות מספר חיובי.`)], 
-                ephemeral: true 
+            return interaction.reply({
+                embeds: [createErrorEmbed(`מחיר XP לא תקין עבור משבצת #${i + 1}. חייב להיות מספר חיובי.`)],
+                ephemeral: true
             });
         }
 
@@ -315,18 +315,18 @@ async function handleXPShopRedeemSelect(interaction) {
     }
 
     if (member.roles.cache.has(selectedRoleId)) {
-        return interaction.reply({ 
-            embeds: [createErrorEmbed(`כבר יש לך את התפקיד **${role.name}**!`)], 
-            ephemeral: true 
+        return interaction.reply({
+            embeds: [createErrorEmbed(`כבר יש לך את התפקיד **${role.name}**!`)],
+            ephemeral: true
         });
     }
 
     const userProfile = getUserProfile(interaction.guildId, member.id);
     if (userProfile.xp < shopItem.xpCost) {
         const needed = shopItem.xpCost - userProfile.xp;
-        return interaction.reply({ 
-            embeds: [createErrorEmbed(`אין לך מספיק XP כדי לממש את **${role.name}**!\n\n**מחיר נדרש:** ${shopItem.xpCost} XP\n**ה-XP שלך:** ${userProfile.xp} XP\n**חסר לך:** ${needed} XP`)], 
-            ephemeral: true 
+        return interaction.reply({
+            embeds: [createErrorEmbed(`אין לך מספיק XP כדי לממש את **${role.name}**!\n\n**מחיר נדרש:** ${shopItem.xpCost} XP\n**ה-XP שלך:** ${userProfile.xp} XP\n**חסר לך:** ${needed} XP`)],
+            ephemeral: true
         });
     }
 
@@ -350,9 +350,9 @@ async function handleXPShopRedeemSelect(interaction) {
         await interaction.reply({ embeds: [successEmbed] });
     } catch (err) {
         console.error('Error assigning XP shop role:', err);
-        await interaction.reply({ 
-            embeds: [createErrorEmbed('נכשל בשיוך התפקיד. ודא שלבוט יש הרשאות מתאימות והתפקיד שלו נמצא מעל התפקיד בחנות!')], 
-            ephemeral: true 
+        await interaction.reply({
+            embeds: [createErrorEmbed('נכשל בשיוך התפקיד. ודא שלבוט יש הרשאות מתאימות והתפקיד שלו נמצא מעל התפקיד בחנות!')],
+            ephemeral: true
         });
     }
 }
@@ -369,9 +369,38 @@ async function handleTicketCreateSelect(interaction) {
     const categoryNames = {
         support: 'תמיכה',
         report: 'דיווח',
+        staff_app: 'בחינה לצוות',
         other: 'אחר'
     };
     const categoryLabel = categoryNames[category] || category;
+
+    // 1. Check if user ALREADY has an open ticket in the server (limit to 1 ticket per user)
+    const sanitizedUsername = user.username.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const existingTicket = guild.channels.cache.find(c => {
+        if (c.type !== ChannelType.GuildText || !c.name.startsWith('ticket-')) return false;
+
+        // Check if channel topic contains user ID
+        if (c.topic && c.topic.includes(user.id)) return true;
+
+        // Check if this specific user has explicit ViewChannel permissions
+        const userOverwrite = c.permissionOverwrites.cache.get(user.id);
+        if (userOverwrite && userOverwrite.allow.has(PermissionsBitField.Flags.ViewChannel)) {
+            return true;
+        }
+
+        // Fallback: match channel name suffix
+        if (sanitizedUsername && c.name.endsWith(`-${sanitizedUsername}`)) return true;
+        if (c.name.endsWith(`-${user.id}`)) return true;
+
+        return false;
+    });
+
+    if (existingTicket) {
+        return interaction.reply({
+            embeds: [createErrorEmbed(`❌ כבר יש לך טיקט פתוח בשרת (${existingTicket})!\nלא ניתן לפתוח יותר מטיקט אחד בו-זמנית. יש לסגור את הטיקט הקיים לפני פתיחת טיקט חדש.`)],
+            ephemeral: true
+        });
+    }
 
     let ticketCategoryChannel = guild.channels.cache.find(
         c => c.type === ChannelType.GuildCategory && (c.name.toUpperCase() === 'TICKETS' || c.name === 'טיקטים')
@@ -388,14 +417,8 @@ async function handleTicketCreateSelect(interaction) {
         }
     }
 
-    const channelName = `ticket-${category}-${user.username.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
-    const existingChannel = guild.channels.cache.find(c => c.name === channelName);
-    if (existingChannel) {
-        return interaction.reply({ 
-            content: `❌ כבר יש לך טיקט פתוח בערוץ ${existingChannel}!`, 
-            ephemeral: true 
-        });
-    }
+    const channelSuffix = sanitizedUsername ? sanitizedUsername.slice(0, 15) : user.id.slice(-6);
+    const channelName = `ticket-${category}-${channelSuffix}`;
 
     const permissionOverwrites = [
         {
@@ -414,9 +437,9 @@ async function handleTicketCreateSelect(interaction) {
         }
     ];
 
-    const staffRoles = guild.roles.cache.filter(r => 
-        r.name.toLowerCase().includes('staff') || 
-        r.name.toLowerCase().includes('admin') || 
+    const staffRoles = guild.roles.cache.filter(r =>
+        r.name.toLowerCase().includes('staff') ||
+        r.name.toLowerCase().includes('admin') ||
         r.name.toLowerCase().includes('mod') ||
         r.name.includes('צוות') ||
         r.name.includes('מנהל')
@@ -438,15 +461,35 @@ async function handleTicketCreateSelect(interaction) {
         const ticketChannel = await guild.channels.create({
             name: channelName,
             type: ChannelType.GuildText,
+            topic: `טיקט של: ${user.tag} (${user.id}) | קטגוריה: ${categoryLabel}`,
             parent: ticketCategoryChannel ? ticketCategoryChannel.id : null,
             permissionOverwrites
         });
 
+        let ticketDescription = `שלום ${user}! ברוך הבא לטיקט התמיכה שלך.\n\n` +
+                                `צוות השרת קיבל הודעה ויעזור לך בהקדם. אנא תאר את פנייתך או בעייתך בפירוט למטה.`;
+
+        if (category === 'staff_app') {
+            ticketDescription = `שלום ${user}! ברוך הבא לטיקט **בחינה והגשת מועמדות לצוות השרת** 📝\n\n` +
+                                `אנא ענה על השאלות הבאות בהודעה אחת מפורטת:\n` +
+                                `1️⃣ **שם מלא וגיל:**\n` +
+                                `2️⃣ **ניסיון קודם בתפקידי צוות / ניהול בשרתי דיסקורד או משחק:**\n` +
+                                `3️⃣ **למה דווקא אתה מתאים לצוות שלנו?**\n` +
+                                `4️⃣ **כמה שעות פעילות תוכל להקדיש לשרת ביום/בשבוע?**\n\n` +
+                                `צוות ההנהלה יעבור על תשובותיך ויחזור אליך בהקדם!`;
+        } else if (category === 'report') {
+            ticketDescription = `שלום ${user}! ברוך הבא לטיקט **דיווח על שחקן / תקלה** 🚨\n\n` +
+                                `אנא שלח את פרטי הדיווח:\n` +
+                                `• על מי/מה הדיווח?\n` +
+                                `• מה קרה ובאיזו שעה?\n` +
+                                `• הוכחות (תמונות, סרטונים, קישורים וכד').\n\n` +
+                                `צוות השרת יבדוק את המקרה בהקדם!`;
+        }
+
         const embed = createEmbed({
-            title: `🎫 פניית תמיכה (${categoryLabel})`,
-            description: `שלום ${user}! ברוך הבא לטיקט התמיכה שלך.\n\n` +
-                         `צוות השרת קיבל הודעה ויעזור לך בהקדם. אנא תאר את פנייתך או בעייתך בפירוט למטה.`,
-            color: COLORS.PRIMARY,
+            title: `🎫 פניית טיקט (${categoryLabel})`,
+            description: ticketDescription,
+            color: category === 'staff_app' ? COLORS.SECONDARY || COLORS.PRIMARY : COLORS.PRIMARY,
             fields: [
                 { name: '🏷️ קטגוריה', value: `\`${categoryLabel}\``, inline: true },
                 { name: '👤 נפתח על ידי', value: `${user} (${user.tag})`, inline: true }
@@ -476,15 +519,15 @@ async function handleTicketCreateSelect(interaction) {
 
         await ticketChannel.send({ content: `${user}`, embeds: [embed], components: [row] });
 
-        await interaction.reply({ 
-            content: `✅ הטיקט נוצר בהצלחה! היכנס לערוץ ${ticketChannel}`, 
-            ephemeral: true 
+        await interaction.reply({
+            content: `✅ הטיקט נוצר בהצלחה! היכנס לערוץ ${ticketChannel}`,
+            ephemeral: true
         });
     } catch (err) {
         console.error('Failed to create ticket channel:', err);
-        await interaction.reply({ 
-            embeds: [createErrorEmbed('נכשל ביצירת ערוץ הטיקט. אנא בדוק את הרשאות הבוט.')], 
-            ephemeral: true 
+        await interaction.reply({
+            embeds: [createErrorEmbed('נכשל ביצירת ערוץ הטיקט. אנא בדוק את הרשאות הבוט.')],
+            ephemeral: true
         });
     }
 }
@@ -493,9 +536,9 @@ async function closeTicketChannel(interaction) {
     const channel = interaction.channel;
 
     if (!channel || !channel.name.startsWith('ticket-')) {
-        return interaction.reply({ 
-            content: '❌ ניתן להשתמש בפקודה זו רק בתוך ערוץ טיקט פעיל!', 
-            ephemeral: true 
+        return interaction.reply({
+            content: '❌ ניתן להשתמש בפקודה זו רק בתוך ערוץ טיקט פעיל!',
+            ephemeral: true
         });
     }
 
@@ -557,20 +600,20 @@ async function handleTicketClaim(interaction) {
     const channel = interaction.channel;
 
     // Check if member is staff
-    const isStaff = member.permissions.has(PermissionsBitField.Flags.ManageGuild) || 
+    const isStaff = member.permissions.has(PermissionsBitField.Flags.ManageGuild) ||
                     member.permissions.has(PermissionsBitField.Flags.Administrator) ||
-                    member.roles.cache.some(r => 
-                        r.name.toLowerCase().includes('staff') || 
-                        r.name.toLowerCase().includes('admin') || 
+                    member.roles.cache.some(r =>
+                        r.name.toLowerCase().includes('staff') ||
+                        r.name.toLowerCase().includes('admin') ||
                         r.name.toLowerCase().includes('mod') ||
                         r.name.includes('צוות') ||
                         r.name.includes('מנהל')
                     );
 
     if (!isStaff) {
-        return interaction.reply({ 
-            content: '❌ רק אנשי צוות יכולים לקחת בעלות על טיקטים.', 
-            ephemeral: true 
+        return interaction.reply({
+            content: '❌ רק אנשי צוות יכולים לקחת בעלות על טיקטים.',
+            ephemeral: true
         });
     }
 
@@ -578,9 +621,9 @@ async function handleTicketClaim(interaction) {
     const creatorField = messageEmbed.fields.find(f => f.name.includes('נפתח על ידי'));
     const creatorId = creatorField ? creatorField.value.match(/<@!?(\d+)>/)?.[1] : null;
 
-    const staffRoles = guild.roles.cache.filter(r => 
-        r.name.toLowerCase().includes('staff') || 
-        r.name.toLowerCase().includes('admin') || 
+    const staffRoles = guild.roles.cache.filter(r =>
+        r.name.toLowerCase().includes('staff') ||
+        r.name.toLowerCase().includes('admin') ||
         r.name.toLowerCase().includes('mod') ||
         r.name.includes('צוות') ||
         r.name.includes('מנהל')
@@ -681,14 +724,14 @@ async function handleTicketAddUserModal(interaction) {
             ReadMessageHistory: true
         });
 
-        await interaction.reply({ 
-            content: `✅ המשתמש ${userToAdd} (ID: ${userId}) נוסף לטיקט בהצלחה!`, 
-            ephemeral: false 
+        await interaction.reply({
+            content: `✅ המשתמש ${userToAdd} (ID: ${userId}) נוסף לטיקט בהצלחה!`,
+            ephemeral: false
         });
     } catch (error) {
-        await interaction.reply({ 
-            content: `❌ לא הצלחתי למצוא משתמש עם ה-ID: \`${userId}\`. וודא שה-ID תקין והמשתמש נמצא בשרת.`, 
-            ephemeral: true 
+        await interaction.reply({
+            content: `❌ לא הצלחתי למצוא משתמש עם ה-ID: \`${userId}\`. וודא שה-ID תקין והמשתמש נמצא בשרת.`,
+            ephemeral: true
         });
     }
 }
@@ -721,7 +764,7 @@ async function handleDropClaim(interaction) {
     const row = new ActionRowBuilder().addComponents(disabledBtn);
 
     await interaction.update({ embeds: [updatedEmbed], components: [row] });
-    
+
     // Announce winner
     await interaction.channel.send({
         content: `🎊 **מזל טוב!** ${interaction.user} זכה ב: **${prize}**`

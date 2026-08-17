@@ -1,8 +1,8 @@
-const { 
-    SlashCommandBuilder, 
-    PermissionFlagsBits, 
-    ActionRowBuilder, 
-    StringSelectMenuBuilder, 
+const {
+    SlashCommandBuilder,
+    PermissionFlagsBits,
+    ActionRowBuilder,
+    StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder
 } = require('discord.js');
 const { createEmbed, COLORS } = require('../../utils/embedBuilder');
@@ -39,6 +39,7 @@ module.exports = {
                 fields: [
                     { name: '🛠️ תמיכה', value: 'עזרה כללית, שאלות על המשחק או הבוט.', inline: true },
                     { name: '🚨 דיווח', value: 'דיווח על שחקן, הפרת חוקים או תקלה.', inline: true },
+                    { name: '📝 בחינה לצוות', value: 'הגשת מועמדות ובחינה להצטרפות לצוות.', inline: true },
                     { name: '❓ אחר', value: 'פניות שונות, הצעות או נושאים אחרים.', inline: true }
                 ],
                 footerText: 'מערכת טיקטים • לחץ למטה לבחירת קטגוריה'
@@ -58,6 +59,11 @@ module.exports = {
                         .setValue('report')
                         .setDescription('דיווח על שחקן או הפרת חוקים')
                         .setEmoji('🚨'),
+                    new StringSelectMenuOptionBuilder()
+                        .setLabel('בחינה לצוות')
+                        .setValue('staff_app')
+                        .setDescription('הגשת מועמדות והצטרפות לצוות השרת')
+                        .setEmoji('📝'),
                     new StringSelectMenuOptionBuilder()
                         .setLabel('אחר')
                         .setValue('other')
