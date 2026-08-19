@@ -69,11 +69,22 @@ function getGuildConfig(guildId) {
             ticketMessage: null,
             serverIp: null,
             serverVersion: null,
-            veteranRoleId: null
+            veteranRoleId: null,
+            afkVoiceChannelId: null,
+            autoRoleId: null,
+            logsChannelId: null,
+            lockdownRoleId: null,
+            lockdownData: null
         };
         writeDB(db);
     }
-    return db.guilds[guildId];
+    const cfg = db.guilds[guildId];
+    if (cfg.afkVoiceChannelId === undefined) cfg.afkVoiceChannelId = null;
+    if (cfg.autoRoleId === undefined) cfg.autoRoleId = null;
+    if (cfg.logsChannelId === undefined) cfg.logsChannelId = null;
+    if (cfg.lockdownRoleId === undefined) cfg.lockdownRoleId = null;
+    if (cfg.lockdownData === undefined) cfg.lockdownData = null;
+    return cfg;
 }
 
 /**
@@ -91,12 +102,57 @@ function updateGuildConfig(guildId, key, value) {
             ticketMessage: null,
             serverIp: null,
             serverVersion: null,
-            veteranRoleId: null
+            veteranRoleId: null,
+            afkVoiceChannelId: null,
+            autoRoleId: null,
+            logsChannelId: null,
+            lockdownRoleId: null,
+            lockdownData: null
         };
     }
     db.guilds[guildId][key] = value;
     writeDB(db);
     return db.guilds[guildId];
+}
+
+const XP_PER_LEVEL = 150;
+
+/**
+ * Calculate level from total cumulative XP
+ */
+function getLevelFromXP(xp) {
+    if (typeof xp !== 'number' || isNaN(xp) || xp < 0) return 0;
+    return Math.floor(xp / XP_PER_LEVEL);
+}
+
+/**
+ * Get total XP required to reach a specific level
+ */
+function getXPForLevel(level) {
+    if (typeof level !== 'number' || isNaN(level) || level <= 0) return 0;
+    return level * XP_PER_LEVEL;
+}
+
+/**
+ * Get detailed XP progress breakdown for a user
+ */
+function getXPProgress(xp) {
+    const totalXP = Math.max(0, typeof xp === 'number' && !isNaN(xp) ? xp : 0);
+    const level = getLevelFromXP(totalXP);
+    const currentLevelBaseXP = level * XP_PER_LEVEL;
+    const xpInCurrentLevel = totalXP - currentLevelBaseXP;
+    const nextLevelTotalXP = (level + 1) * XP_PER_LEVEL;
+    const percent = Math.min(100, Math.floor((xpInCurrentLevel / XP_PER_LEVEL) * 100));
+
+    return {
+        level,
+        totalXP,
+        xpInCurrentLevel,
+        neededForNextLevel: XP_PER_LEVEL,
+        nextLevelTotalXP,
+        xpRemainingToNextLevel: XP_PER_LEVEL - xpInCurrentLevel,
+        percent
+    };
 }
 
 /**
@@ -115,6 +171,8 @@ function getUserProfile(guildId, userId) {
         writeDB(db);
     }
     const profile = db.users[key];
+    profile.xp = (typeof profile.xp === 'number' && !isNaN(profile.xp)) ? profile.xp : 0;
+    profile.level = getLevelFromXP(profile.xp);
     if (typeof profile.messages !== 'number') profile.messages = 0;
     if (typeof profile.voiceTimeMs !== 'number') profile.voiceTimeMs = 0;
     return profile;
@@ -150,27 +208,27 @@ function addVoiceTime(guildId, userId, ms) {
 }
 
 /**
- * Add XP to user with rock-solid level calculation
+ * Add XP to user (Cumulative, NEVER reset upon leveling up)
  */
-function addXP(guildId, userId, xpToAdd = 5) {
+function addXP(guildId, userId, xpToAdd = 20) {
     const db = readDB();
     const key = `${guildId}_${userId}`;
 
     if (!db.users[key]) {
-        db.users[key] = { xp: 0, level: 0 };
+        db.users[key] = { xp: 0, level: 0, messages: 0, voiceTimeMs: 0 };
     }
 
     const current = db.users[key];
     current.xp = (typeof current.xp === 'number' && !isNaN(current.xp)) ? current.xp : 0;
 
-    // Ensure old level is a number
-    const oldLevel = (typeof current.level === 'number' && !isNaN(current.level))
-        ? current.level
-        : Math.floor(current.xp / 150);
+    // Calculate level BEFORE adding XP
+    const oldLevel = getLevelFromXP(current.xp);
 
-    // Add XP and calculate new level
-    current.xp += xpToAdd;
-    const newLevel = Math.floor(current.xp / 150);
+    // Add XP (XP is cumulative and permanent)
+    current.xp += Math.max(0, xpToAdd);
+
+    // Calculate level AFTER adding XP
+    const newLevel = getLevelFromXP(current.xp);
     current.level = newLevel;
 
     // Trigger level up only when new level strictly exceeds old level
@@ -182,7 +240,8 @@ function addXP(guildId, userId, xpToAdd = 5) {
         level: current.level,
         leveledUp,
         oldLevel,
-        newLevel
+        newLevel,
+        levelsGained: newLevel - oldLevel
     };
 }
 
@@ -193,10 +252,10 @@ function deductXP(guildId, userId, amount) {
     const db = readDB();
     const key = `${guildId}_${userId}`;
     if (!db.users[key]) {
-        db.users[key] = { xp: 0, level: 0 };
+        db.users[key] = { xp: 0, level: 0, messages: 0, voiceTimeMs: 0 };
     }
-    db.users[key].xp = Math.max(0, db.users[key].xp - amount);
-    db.users[key].level = Math.floor(db.users[key].xp / 150);
+    db.users[key].xp = Math.max(0, (db.users[key].xp || 0) - amount);
+    db.users[key].level = getLevelFromXP(db.users[key].xp);
     writeDB(db);
     return db.users[key];
 }
@@ -210,5 +269,9 @@ module.exports = {
     incrementMessageCount,
     addVoiceTime,
     addXP,
-    deductXP
+    deductXP,
+    getLevelFromXP,
+    getXPForLevel,
+    getXPProgress,
+    XP_PER_LEVEL
 };

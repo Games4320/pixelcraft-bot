@@ -7,38 +7,6 @@ module.exports = {
     aliases: ['veteran'],
     description: 'בדיקת תאריך הצטרפות לשרת וזכאות לתפקיד וותיק (Veteran / OG)',
     async execute(message, args) {
-        // 1. Admin shortcut: !vt set <@role> or !vt set role <@role>
-        if (args[0] && args[0].toLowerCase() === 'set') {
-            if (!message.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
-                return message.reply({ embeds: [createErrorEmbed('❌ דרושות הרשאות ניהול שרת כדי להגדיר את תפקיד הוותיק.')] });
-            }
-
-            const role = message.mentions.roles.first() ||
-                         message.guild.roles.cache.get(args[1]) ||
-                         message.guild.roles.cache.get(args[2]) ||
-                         message.guild.roles.cache.find(r => r.name.toLowerCase() === args.slice(1).join(' ').toLowerCase());
-
-            if (!role) {
-                return message.reply({
-                    embeds: [createErrorEmbed(
-                        'אנא תייג או ספק את ה-ID של התפקיד הרצוי.\n' +
-                        '**שימוש:** `!vt set <@role>` או `/veteran set role role:<תפקיד>`\n' +
-                        '**דוגמה:** `!vt set @Gold` או `!vt set @OG`'
-                    )]
-                });
-            }
-
-            updateGuildConfig(message.guild.id, 'veteranRoleId', role.id);
-
-            const successEmbed = createSuccessEmbed(
-                'תפקיד וותיק עודכן בהצלחה',
-                `תפקיד הוותיק עבור **${message.guild.name}** הוגדר לתפקיד **${role}**!\n\n` +
-                `מעתה, פקודת \`!vt\` תותאם לשם התפקיד **${role.name}** ותעניק אותו אוטומטית לשחקנים זכאים.`
-            );
-
-            return message.reply({ embeds: [successEmbed] });
-        }
-
         const member = message.member;
         if (!member || !member.joinedAt) {
             return message.reply('לא ניתן לקבוע את תאריך ההצטרפות שלך לשרת.');

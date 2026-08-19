@@ -1,4 +1,4 @@
-# Discord Multi-Purpose Community Bot
+ק# Discord Multi-Purpose Community Bot
 
 A production-ready, feature-rich public Discord bot designed for gaming communities and public servers with dynamic per-server adaptability.
 

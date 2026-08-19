@@ -38,6 +38,8 @@ module.exports = {
                     await handleXPShopCostsModal(interaction);
                 } else if (interaction.customId === 'ticket_adduser_modal') {
                     await handleTicketAddUserModal(interaction);
+                } else if (interaction.customId === 'ticket_subject_modal') {
+                    await handleTicketSubjectModalSubmit(interaction);
                 }
                 return;
             }
@@ -72,6 +74,8 @@ module.exports = {
                     await handleReactionRoleButton(interaction);
                 } else if (interaction.customId === 'xpshop_btn_enter_xp') {
                     await handleXPShopOpenCostsModal(interaction);
+                } else if (interaction.customId.startsWith('ticket_subject_btn_')) {
+                    await handleTicketSubjectOpenModal(interaction);
                 }
                 return;
             }
@@ -384,13 +388,26 @@ async function handleTicketCreateSelect(interaction) {
     const guild = interaction.guild;
     const user = interaction.user;
 
-    const categoryNames = {
-        support: 'תמיכה',
-        report: 'דיווח',
-        staff_app: 'בחינה לצוות',
-        other: 'אחר'
-    };
-    const categoryLabel = categoryNames[category] || category;
+    const config = getGuildConfig(interaction.guildId);
+    const customSubjects = config.ticketSubjects || [];
+
+    let categoryLabel = category;
+    let customSub = null;
+
+    if (category.startsWith('custom_')) {
+        customSub = customSubjects.find(s => s.value === category);
+        if (customSub) {
+            categoryLabel = customSub.name;
+        }
+    } else {
+        const categoryNames = {
+            support: 'תמיכה',
+            report: 'דיווח',
+            staff_app: 'בחינה לצוות',
+            other: 'אחר'
+        };
+        categoryLabel = categoryNames[category] || category;
+    }
 
     // 1. Check if user ALREADY has an open ticket in the server (limit to 1 ticket per user)
     const sanitizedUsername = user.username.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -508,6 +525,14 @@ async function handleTicketCreateSelect(interaction) {
                                 `• מה קרה ובאיזו שעה?\n` +
                                 `• הוכחות (תמונות, סרטונים, קישורים וכד').\n\n` +
                                 `צוות השרת יבדוק את המקרה בהקדם!`;
+        } else if (category.startsWith('custom_')) {
+            if (customSub) {
+                ticketDescription = `שלום ${user}! ברוך הבא לטיקט **${customSub.name}** ${customSub.emoji ? customSub.emoji : '🎫'}\n\n` +
+                                    `${customSub.description}`;
+            } else {
+                ticketDescription = `שלום ${user}! ברוך הבא לטיקט התמיכה שלך בשרת **${guild.name}**.\n\n` +
+                                    `צוות השרת קיבל הודעה ויעזור לך בהקדם. אנא תאר את פנייתך או בעייתך בפירוט למטה.`;
+            }
         } else {
             ticketDescription = `שלום ${user}! ברוך הבא לטיקט התמיכה שלך בשרת **${guild.name}**.\n\n` +
                                 `צוות השרת קיבל הודעה ויעזור לך בהקדם. אנא תאר את פנייתך או בעייתך בפירוט למטה.`;
@@ -548,9 +573,9 @@ async function handleTicketCreateSelect(interaction) {
 
         const row = new ActionRowBuilder().addComponents(closeBtn, claimBtn, addUserBtn);
 
-        // Include user and all role pings in content so Discord triggers notification sounds/badges
-        const allPings = [user.toString(), ...parsed.pings.filter(p => p !== user.toString())];
-        const contentMessage = allPings.join(' ');
+        // Include role pings in content so Discord triggers notifications for staff without duplicating user ping
+        const rolePings = parsed.pings.filter(p => p !== user.toString() && p !== `<@!${user.id}>`);
+        const contentMessage = rolePings.length > 0 ? rolePings.join(' ') : undefined;
 
         await ticketChannel.send({
             content: contentMessage,
@@ -837,3 +862,114 @@ async function handleReactionRoleButton(interaction) {
         return interaction.reply({ content: '❌ נכשל בעדכון התפקיד. וודא שלבוט יש הרשאות **ניהול תפקידים (Manage Roles)** ושהרול שלו נמצא מעל התפקיד המבוקש בהיררכיה!', ephemeral: true });
     }
 }
+
+// ==========================================
+// TICKET CUSTOM SUBJECTS SETUP HANDLERS
+// ==========================================
+
+const { activeSubjectSetupSessions } = require('../commands/slash/ticket');
+
+async function handleTicketSubjectOpenModal(interaction) {
+    const step = parseInt(interaction.customId.replace('ticket_subject_btn_', ''), 10);
+    const session = activeSubjectSetupSessions.get(interaction.guildId);
+
+    if (!session) {
+        return interaction.reply({ content: '❌ הסשן פג תוקף. אנא הרץ שוב את הפקודה `/ticket subjects`.', ephemeral: true });
+    }
+
+    const modal = new ModalBuilder()
+        .setCustomId('ticket_subject_modal')
+        .setTitle(`הגדרת נושא #${step} מתוך ${session.amount}`);
+
+    const nameInput = new TextInputBuilder()
+        .setCustomId('ticket_subject_name')
+        .setLabel(`שם הנושא #${step} (לדוגמה: תמיכה טכנית)`)
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true)
+        .setMaxLength(25);
+
+    const descInput = new TextInputBuilder()
+        .setCustomId('ticket_subject_desc')
+        .setLabel(`תיאור הנושא #${step}`)
+        .setStyle(TextInputStyle.Paragraph)
+        .setRequired(true)
+        .setMaxLength(100);
+
+    const emojiInput = new TextInputBuilder()
+        .setCustomId('ticket_subject_emoji')
+        .setLabel(`אימוג'י לנושא #${step} (אופציונלי, למשל 🛠️)`)
+        .setStyle(TextInputStyle.Short)
+        .setRequired(false)
+        .setMaxLength(5);
+
+    modal.addComponents(
+        new ActionRowBuilder().addComponents(nameInput),
+        new ActionRowBuilder().addComponents(descInput),
+        new ActionRowBuilder().addComponents(emojiInput)
+    );
+
+    await interaction.showModal(modal);
+}
+
+async function handleTicketSubjectModalSubmit(interaction) {
+    const session = activeSubjectSetupSessions.get(interaction.guildId);
+
+    if (!session) {
+        return interaction.reply({ content: '❌ הסשן פג תוקף. אנא הרץ שוב את הפקודה `/ticket subjects`.', ephemeral: true });
+    }
+
+    const name = interaction.fields.getTextInputValue('ticket_subject_name').trim();
+    const description = interaction.fields.getTextInputValue('ticket_subject_desc').trim();
+    const emoji = interaction.fields.getTextInputValue('ticket_subject_emoji').trim() || null;
+
+    const step = session.currentStep;
+    session.subjects.push({
+        name,
+        description,
+        emoji,
+        value: `custom_${step}`
+    });
+
+    if (step < session.amount) {
+        session.currentStep++;
+        const nextStep = session.currentStep;
+
+        const embed = createEmbed({
+            title: '🎫 אשף הגדרת נושאי טיקטים',
+            description: `✅ **נושא #${step}** הוגדר בהצלחה!\n` +
+                         `• **שם:** ${name}\n` +
+                         `• **תיאור:** ${description}\n` +
+                         `${emoji ? `• **אימוג'י:** ${emoji}\n` : ''}\n` +
+                         `לחץ על הכפתור למטה כדי להמשיך להגדרת **נושא #${nextStep}**.`,
+            color: COLORS.PRIMARY
+        });
+
+        const nextBtn = new ButtonBuilder()
+            .setCustomId(`ticket_subject_btn_${nextStep}`)
+            .setLabel(`המשך להגדרת נושא #${nextStep} ⚙️`)
+            .setStyle(ButtonStyle.Primary);
+
+        const row = new ActionRowBuilder().addComponents(nextBtn);
+
+        await interaction.update({ embeds: [embed], components: [row] });
+    } else {
+        // All subjects configured! Save to database.
+        updateGuildConfig(interaction.guildId, 'ticketSubjects', session.subjects);
+        activeSubjectSetupSessions.delete(interaction.guildId);
+
+        let listText = '';
+        session.subjects.forEach((sub, idx) => {
+            listText += `**${idx + 1}.** ${sub.emoji ? sub.emoji + ' ' : ''}**${sub.name}**\n` +
+                        `└ *${sub.description}*\n\n`;
+        });
+
+        const successEmbed = createSuccessEmbed(
+            'נושאי הטיקטים עודכנו בהצלחה! 🎉',
+            `הגדרת בהצלחה **${session.amount}** נושאי טיקטים מותאמים אישית:\n\n${listText}` +
+            `מעתה, שליחת פאנל הטיקטים באמצעות \`/ticket panel\` תציג נושאים אלו!`
+        );
+
+        await interaction.update({ embeds: [successEmbed], components: [] });
+    }
+}
+

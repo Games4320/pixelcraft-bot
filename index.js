@@ -39,6 +39,11 @@ if (fs.existsSync(prefixCommandsPath)) {
         const command = require(filePath);
         if ('name' in command && 'execute' in command) {
             client.prefixCommands.set(command.name.toLowerCase(), command);
+            if (Array.isArray(command.aliases)) {
+                for (const alias of command.aliases) {
+                    client.prefixCommands.set(alias.toLowerCase(), command);
+                }
+            }
             console.log(`Loaded prefix command: !${command.name}`);
         }
     }

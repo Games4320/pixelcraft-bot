@@ -7,9 +7,9 @@ const PREFIX = '!';
 // Deduplication cache for message IDs to prevent double processing in event handlers
 const processedMessages = new Set();
 
-// XP Gain Cooldown: 45 seconds per user to prevent XP spamming
+// XP Gain Cooldown: 20 seconds per user to allow natural, responsive progression
 const xpCooldowns = new Map();
-const XP_COOLDOWN_MS = 45 * 1000;
+const XP_COOLDOWN_MS = 20 * 1000;
 
 module.exports = {
     name: 'messageCreate',
@@ -42,14 +42,20 @@ module.exports = {
             if (now - lastXPTime >= XP_COOLDOWN_MS) {
                 try {
                     xpCooldowns.set(xpKey, now);
-                    const xpResult = addXP(message.guild.id, message.author.id, 5);
+                    // Award 15-25 XP randomly per message
+                    const randomXP = Math.floor(Math.random() * 11) + 15;
+                    const xpResult = addXP(message.guild.id, message.author.id, randomXP);
+
                     if (xpResult.leveledUp) {
+                        const nextLevelXP = (xpResult.newLevel + 1) * 150;
                         const levelEmbed = createEmbed({
                             title: '🎉 עלית רמה!',
-                            description: `כל הכבוד ${message.author}! הגעת ל**רמה ${xpResult.newLevel}**! ⭐`,
+                            description: `כל הכבוד ${message.author}! עלית מ**רמה ${xpResult.oldLevel}** ל**רמה ${xpResult.newLevel}**! ⭐\n\n` +
+                                         `✨ **סה"כ XP מצטבר:** **${xpResult.xp.toLocaleString()} XP** *(ה-XP נשמר לתמיד ולא מתאפס!)*\n` +
+                                         `🎯 **הרמה הבאה (רמה ${xpResult.newLevel + 1}):** ב-**${nextLevelXP.toLocaleString()} XP**`,
                             color: COLORS.SUCCESS,
                             thumbnail: message.author.displayAvatarURL({ dynamic: true }),
-                            footerText: `${message.guild.name} • מערכת רמות`
+                            footerText: `${message.guild.name} • מערכת רמות ו-XP`
                         });
                         await message.channel.send({ embeds: [levelEmbed] }).catch(() => {});
                     }

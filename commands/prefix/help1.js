@@ -5,6 +5,7 @@ module.exports = {
     description: 'מציג את רשימת פקודות הבוט',
     async execute(message) {
         const prefixCommandsField = [
+            '`!rank [@משתמש]` — בדיקת ה-XP, הרמה וההתקדמות בדירוג',
             '`!lb` / `!top` — הצגת לוח 10 המובילים בשרת לפי XP ורמות (Leaderboard)',
             '`!status [@משתמש]` — הצגת סטטוס מפורט (הודעות, שיחות, XP, תפקיד, ותק, הזמנות)',
             '`!h <סיבה>` / `!h <קטגוריה> <סיבה>` — שליחת פניית תמיכה לצוות השרת',
@@ -16,12 +17,12 @@ module.exports = {
         ].join('\n');
 
         const slashCommandsField = [
-            '`/leaderboard` — הצגת לוח מובילי ה-XP בשרת',
-            '`/status [user]` — הצגת סטטוס מפורט על משתמש',
-            '`/rank` — בדיקת ה-XP, הרמה וההתקדמות שלך',
-            '`/xpshop view` — צפייה בחנות תפקידי ה-XP ורכישת תפקידים',
-            '`/ip` — הצגת כתובת ה-IP של השרת',
-            '`/version` — הצגת גרסת ה-Minecraft הנתמכת בשרת'
+            '`/adminhelp` — מדריך פקודות ניהול (לצוות בלבד)',
+            '`/ticket setup` — שליחת פאנל טיקטים והגדרות',
+            '`/set` — הגדרת חדר AFK, רול אוטומטי, חדר לוגים ורול נעילה',
+            '`/lockserver` / `/unlockserver` — נעילת חירום / שחרור השרת',
+            '`/clear` / `/giveaway` / `/reactionrole` / `/reroll` — ניהול צ\'אט והגרלות',
+            '`/leaderboard` / `/status` / `/rank` / `/xpshop` — מערכת XP ורמות'
         ].join('\n');
 
         const embed = createEmbed({
@@ -31,7 +32,7 @@ module.exports = {
             fields: [
                 { name: '⚡ פקודות קידומת (!)', value: prefixCommandsField, inline: false },
                 { name: '🚀 פקודות סלאש (/)', value: slashCommandsField, inline: false },
-                { name: '💡 מערכת XP', value: 'מרוויחים **+5 XP** על כל הודעה בצ\'אט! כל **150 XP** מקנים **רמה 1+**.', inline: false }
+                { name: '💡 מערכת XP ורמות', value: 'מרוויחים **15-25 XP** על כל הודעה בצ\'אט! כל **150 XP** מקנים **רמה 1+**. ה-XP נשמר לתמיד ומצטבר ללא איפוס!', inline: false }
             ],
             footerText: `${message.guild.name} • רשום !help1 בכל עת`
         });

@@ -1,6 +1,6 @@
-const { 
-    SlashCommandBuilder, 
-    PermissionFlagsBits 
+const {
+    SlashCommandBuilder,
+    PermissionFlagsBits
 } = require('discord.js');
 const { addXP, deductXP, readDB, writeDB } = require('../../utils/database');
 const { createSuccessEmbed, createErrorEmbed } = require('../../utils/embedBuilder');
@@ -25,7 +25,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand.setName('reset')
                 .setDescription('איפוס XP למשתמש או לכולם')
-                .addStringOption(option => 
+                .addStringOption(option =>
                     option.setName('target')
                         .setDescription('למי לאפס? (User ID / everyone)')
                         .setRequired(true)
@@ -38,19 +38,19 @@ module.exports = {
         if (subcommand === 'add') {
             const user = interaction.options.getUser('user');
             const amount = interaction.options.getInteger('amount');
-            
+
             const result = addXP(guildId, user.id, amount);
-            await interaction.reply({ 
-                embeds: [createSuccessEmbed('הוספת XP הצליחה', `נוספו **${amount}** XP למשתמש ${user}. כעת יש לו **${result.xp}** XP.`)] 
+            await interaction.reply({
+                embeds: [createSuccessEmbed('הוספת XP הצליחה', `נוספו **${amount.toLocaleString()}** XP למשתמש ${user}.\nכעת יש לו **${result.xp.toLocaleString()}** XP (רמה **${result.level}**).`)]
             });
 
         } else if (subcommand === 'take') {
             const user = interaction.options.getUser('user');
             const amount = interaction.options.getInteger('amount');
-            
+
             const result = deductXP(guildId, user.id, amount);
-            await interaction.reply({ 
-                embeds: [createSuccessEmbed('הסרת XP הצליחה', `הוסרו **${amount}** XP מהמשתמש ${user}. כעת נשאר לו **${result.xp}** XP.`)] 
+            await interaction.reply({
+                embeds: [createSuccessEmbed('הסרת XP הצליחה', `הוסרו **${amount.toLocaleString()}** XP מהמשתמש ${user}.\nכעת נשאר לו **${result.xp.toLocaleString()}** XP (רמה **${result.level}**).`)]
             });
 
         } else if (subcommand === 'reset') {
@@ -62,27 +62,29 @@ module.exports = {
                 let count = 0;
                 Object.keys(db.users).forEach(key => {
                     if (key.startsWith(`${guildId}_`)) {
-                        db.users[key] = { xp: 0, level: 0 };
+                        db.users[key].xp = 0;
+                        db.users[key].level = 0;
                         count++;
                     }
                 });
                 writeDB(db);
-                await interaction.reply({ 
-                    embeds: [createSuccessEmbed('איפוס כללי הצליח', `אופסו הנתונים של **${count}** משתמשים בשרת.`)] 
+                await interaction.reply({
+                    embeds: [createSuccessEmbed('איפוס כללי הצליח', `אופסו הנתונים של **${count}** משתמשים בשרת.`)]
                 });
             } else {
                 // Try to treat as user ID or mention
                 const userId = target.replace(/[<@!>]/g, '');
                 const key = `${guildId}_${userId}`;
-                
+
                 if (db.users[key]) {
-                    db.users[key] = { xp: 0, level: 0 };
+                    db.users[key].xp = 0;
+                    db.users[key].level = 0;
                     writeDB(db);
-                    await interaction.reply({ 
-                        embeds: [createSuccessEmbed('איפוס משתמש הצליח', `ה-XP של <@${userId}> אופס בהצלחה.`)] 
+                    await interaction.reply({
+                        embeds: [createSuccessEmbed('איפוס משתמש הצליח', `ה-XP של <@${userId}> אופס בהצלחה.`)]
                     });
                 } else {
-                    await interaction.reply({ 
+                    await interaction.reply({
                         embeds: [createErrorEmbed('משתמש לא נמצא', `לא נמצאו נתונים עבור המשתמש/ID שהוזן.`)] ,
                         ephemeral: true
                     });

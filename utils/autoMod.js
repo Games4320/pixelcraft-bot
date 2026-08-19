@@ -1,5 +1,6 @@
 const { PermissionsBitField } = require('discord.js');
 const { getGuildConfig } = require('./database');
+const { logAutoMod } = require('./logger');
 
 // Spam tracking maps: userId -> timestamps array
 const userMessageTimestamps = new Map();
@@ -41,6 +42,7 @@ async function handleAutoMod(message) {
             await message.delete().catch(() => {});
             const warn = await message.channel.send(`🚫 ${message.author}, **חל איסור לפרסם קישורי הזמנה לשרתי דיסקורד אחרים!**`).catch(() => {});
             if (warn) setTimeout(() => warn.delete().catch(() => {}), 6000);
+            await logAutoMod(message.guild, { member: message.member, channel: message.channel, reason: 'invite', content: message.content }).catch(() => {});
             return { blocked: true, reason: 'invite' };
         } catch (err) {}
     }
@@ -54,6 +56,7 @@ async function handleAutoMod(message) {
                 await message.delete().catch(() => {});
                 const warn = await message.channel.send(`⚠️ ${message.author}, **נא לשמור על שפה נקייה ומכבדת בצ'אט!**`).catch(() => {});
                 if (warn) setTimeout(() => warn.delete().catch(() => {}), 6000);
+                await logAutoMod(message.guild, { member: message.member, channel: message.channel, reason: 'curse', content: message.content }).catch(() => {});
                 return { blocked: true, reason: 'curse' };
             } catch (err) {}
         }
@@ -70,6 +73,7 @@ async function handleAutoMod(message) {
             await message.delete().catch(() => {});
             const warn = await message.channel.send(`⏳ ${message.author}, **נא להפסיק להציף את הצ'אט!**`).catch(() => {});
             if (warn) setTimeout(() => warn.delete().catch(() => {}), 6000);
+            await logAutoMod(message.guild, { member: message.member, channel: message.channel, reason: 'spam', content: message.content }).catch(() => {});
             return { blocked: true, reason: 'spam' };
         } catch (err) {}
     }
@@ -84,6 +88,7 @@ async function handleAutoMod(message) {
                 await message.delete().catch(() => {});
                 const warn = await message.channel.send(`⚠️ ${message.author}, **נא לא לשלוח הודעות כפולות שוב ושוב!**`).catch(() => {});
                 if (warn) setTimeout(() => warn.delete().catch(() => {}), 6000);
+                await logAutoMod(message.guild, { member: message.member, channel: message.channel, reason: 'duplicate_spam', content: message.content }).catch(() => {});
                 return { blocked: true, reason: 'duplicate_spam' };
             } catch (err) {}
         }

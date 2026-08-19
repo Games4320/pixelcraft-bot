@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { readDB } = require('../../utils/database');
+const { readDB, getLevelFromXP } = require('../../utils/database');
 const { createEmbed, COLORS } = require('../../utils/embedBuilder');
 
 const MEDALS = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
@@ -18,7 +18,7 @@ module.exports = {
             if (key.startsWith(`${guildId}_`)) {
                 const userId = key.split('_')[1];
                 const xp = profile.xp || 0;
-                const level = profile.level || Math.floor(xp / 150);
+                const level = getLevelFromXP(xp);
                 if (xp > 0) {
                     guildUsers.push({ userId, xp, level });
                 }
@@ -62,7 +62,7 @@ module.exports = {
             fields: [
                 { name: '📍 המיקום שלך בדירוג:', value: userRankText, inline: false }
             ],
-            footerText: `${interaction.guild.name} Bot • +5 XP לכל הודעה בצ'אט`
+            footerText: `${interaction.guild.name} • XP מצטבר לתמיד ולא מתאפס`
         });
 
         await interaction.reply({ embeds: [embed] });

@@ -1,24 +1,18 @@
-const { SlashCommandBuilder } = require('discord.js');
 const { getUserProfile, getXPProgress } = require('../../utils/database');
 const { createEmbed, COLORS } = require('../../utils/embedBuilder');
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('rank')
-        .setDescription('בדיקת ה-XP והרמה הנוכחית שלך')
-        .addUserOption(option =>
-            option.setName('target')
-                .setDescription('המשתמש שאת דרגתו ברצונך לבדוק')
-                .setRequired(false)
-        ),
-    async execute(interaction) {
-        const targetUser = interaction.options.getUser('target') || interaction.user;
+    name: 'rank',
+    aliases: ['level', 'xp'],
+    description: 'בדיקת ה-XP, הרמה וההתקדמות שלך או של משתמש אחר',
+    async execute(message, args) {
+        const targetUser = message.mentions.users.first() || message.author;
 
         if (targetUser.bot) {
-            return interaction.reply({ content: '❌ לבוטים אין נקודות XP או רמות!', ephemeral: true });
+            return message.reply('❌ לבוטים אין נקודות XP או רמות!');
         }
 
-        const profile = getUserProfile(interaction.guildId, targetUser.id);
+        const profile = getUserProfile(message.guild.id, targetUser.id);
         const progress = getXPProgress(profile.xp);
 
         // Create visual progress bar (10 blocks)
@@ -35,18 +29,18 @@ module.exports = {
                 { name: '👤 משתמש', value: `${targetUser}`, inline: true },
                 { name: '⭐ רמה נוכחית', value: `**רמה ${progress.level}**`, inline: true },
                 { name: '✨ סה"כ XP', value: `**${progress.totalXP.toLocaleString()}** XP *(מצטבר לתמיד)*`, inline: true },
-                {
-                    name: `📈 התקדמות לרמה ${progress.level + 1}`,
+                { 
+                    name: `📈 התקדמות לרמה ${progress.level + 1}`, 
                     value: `${progressBar} **${progress.percent}%**\n` +
                            `• סה"כ התקדמות: **${progress.totalXP.toLocaleString()} / ${progress.nextLevelTotalXP.toLocaleString()} XP**\n` +
-                           `• נותרו עוד **${progress.xpRemainingToNextLevel} XP** לרמה **${progress.level + 1}**`,
-                    inline: false
+                           `• נותרו עוד **${progress.xpRemainingToNextLevel} XP** לרמה **${progress.level + 1}**`, 
+                    inline: false 
                 },
                 { name: '💬 סה"כ הודעות בצ\'אט', value: `\`${(profile.messages || 0).toLocaleString()}\``, inline: true }
             ],
-            footerText: `${interaction.guild.name} • מרוויחים 15-25 XP על כל הודעה בצ'אט (ה-XP נשמר לתמיד!)`
+            footerText: `${message.guild.name} • מרוויחים 15-25 XP על כל הודעה בצ'אט (ה-XP נשמר לתמיד!)`
         });
 
-        await interaction.reply({ embeds: [embed] });
+        await message.channel.send({ embeds: [embed] });
     }
 };

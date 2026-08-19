@@ -1,6 +1,7 @@
 const { ActivityType, REST, Routes } = require('discord.js');
 const { initInviteTracker } = require('../utils/inviteTracker');
 const { initGiveaways } = require('../utils/giveawayManager');
+const { initVoiceXPLoop } = require('./voiceStateUpdate');
 
 module.exports = {
     name: 'ready',
@@ -23,6 +24,9 @@ module.exports = {
 
         // Resume any running giveaways across restarts
         await initGiveaways(client);
+
+        // Start Voice XP interval loop (3 XP/minute)
+        initVoiceXPLoop(client);
 
         // Automatically set bot's server nickname to `${guild.name} Bot` in each guild
         for (const guild of client.guilds.cache.values()) {

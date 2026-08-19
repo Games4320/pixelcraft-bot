@@ -82,9 +82,14 @@ module.exports = {
 
         const row = new ActionRowBuilder().addComponents(claimBtn);
 
-        const pingContent = parsed.pings.length > 0 ? parsed.pings.join(' ') : undefined;
+        // Delete original user command message to avoid duplicate text in chat
+        await message.delete().catch(() => {});
 
-        await message.reply({
+        // Filter out author from top ping line so author tag isn't duplicated
+        const rolePings = parsed.pings.filter(p => p !== message.author.toString() && p !== `<@!${message.author.id}>`);
+        const pingContent = rolePings.length > 0 ? rolePings.join(' ') : undefined;
+
+        await message.channel.send({
             content: pingContent,
             embeds: [embed],
             components: [row],

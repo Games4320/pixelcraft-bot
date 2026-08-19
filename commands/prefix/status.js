@@ -35,7 +35,7 @@ module.exports = {
         // 1. Messages & XP
         const profile = getUserProfile(message.guild.id, targetUser.id);
         const xp = profile.xp || 0;
-        const level = profile.level || Math.floor(xp / 150);
+        const level = profile.level;
         const messagesCount = profile.messages || 0;
 
         // 2. Voice Duration
@@ -68,7 +68,7 @@ module.exports = {
             fields: [
                 { name: '💬 הודעות שכתב:', value: `\`${messagesCount}\` הודעות`, inline: true },
                 { name: '🎙️ זמן בשיחה:', value: `\`${voiceTimeFormatted}\``, inline: true },
-                { name: '✨ XP:', value: `**${xp}** XP (רמה **${level}**)`, inline: true },
+                { name: '✨ XP:', value: `**${xp.toLocaleString()}** XP (רמה **${level}**)`, inline: true },
                 { name: '🛡️ רול הכי גבוה שיש לו:', value: `${highestRoleText}`, inline: true },
                 { name: '📅 כמה זמן בשרת:', value: `${timeInServerText}`, inline: true },
                 { name: '📩 הזמנות:', value: `\`${invitesCount}\` הזמנות`, inline: true }
