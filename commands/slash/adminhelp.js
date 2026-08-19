@@ -43,6 +43,7 @@ module.exports = {
         ].join('\n');
 
         const serverField = [
+            '• `/veteran set role role:<תפקיד>` — הגדרת התפקיד שיוענק כמעמד וותיק (לדוגמה: Gold, Diamond, OG, וותיק). מעדכן דינמית את `!vt`.',
             '• `/status [user]` — הצגת סטטוס מפורט (הודעות, זמן בשיחה, XP, תפקיד גבוה, ותק בשרת, הזמנות).',
             '• `/clear message_amount:<כמות> [user]` — מחיקה מהירה של עד 100 הודעות בערוץ.',
             '• `/ip set ip server_ip:<כתובת IP>` — הגדרת IP של שרת המיינקראפט (מוצג ב-`!ip` ו-`/ip`).',

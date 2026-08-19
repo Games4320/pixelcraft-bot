@@ -68,7 +68,8 @@ function getGuildConfig(guildId) {
             ticketCategory: null,
             ticketMessage: null,
             serverIp: null,
-            serverVersion: null
+            serverVersion: null,
+            veteranRoleId: null
         };
         writeDB(db);
     }
@@ -89,7 +90,8 @@ function updateGuildConfig(guildId, key, value) {
             ticketCategory: null,
             ticketMessage: null,
             serverIp: null,
-            serverVersion: null
+            serverVersion: null,
+            veteranRoleId: null
         };
     }
     db.guilds[guildId][key] = value;
