@@ -9,37 +9,46 @@ if (!fs.existsSync(DB_DIR)) {
     fs.mkdirSync(DB_DIR, { recursive: true });
 }
 
-if (!fs.existsSync(DB_FILE)) {
-    const initialData = {
-        guilds: {},
-        users: {}
-    };
-    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
-}
-
 const DEFAULT_H_MESSAGE = "תודה שפנית אלינו! חבר צוות יטפל בבקשתך בהקדם.\n**קטגוריה:** {category}\n**סיבה:** {reason}";
 
+// In-memory Database Cache for rock-solid consistency across channels and events
+let dbCache = null;
+
 /**
- * Load database from disk
+ * Load database from disk or return in-memory cache
  */
 function readDB() {
+    if (dbCache) return dbCache;
+
     try {
-        const raw = fs.readFileSync(DB_FILE, 'utf8');
-        return JSON.parse(raw);
+        if (fs.existsSync(DB_FILE)) {
+            const raw = fs.readFileSync(DB_FILE, 'utf8');
+            dbCache = JSON.parse(raw);
+        } else {
+            dbCache = { guilds: {}, users: {}, giveaways: {} };
+            fs.writeFileSync(DB_FILE, JSON.stringify(dbCache, null, 2), 'utf8');
+        }
     } catch (error) {
         console.error('Error reading database file:', error);
-        return { guilds: {}, users: {} };
+        dbCache = { guilds: {}, users: {}, giveaways: {} };
     }
+
+    if (!dbCache.guilds) dbCache.guilds = {};
+    if (!dbCache.users) dbCache.users = {};
+    if (!dbCache.giveaways) dbCache.giveaways = {};
+
+    return dbCache;
 }
 
 /**
- * Save database to disk
+ * Save database to disk directly and safely
  */
 function writeDB(data) {
+    if (data) dbCache = data;
+    const toSave = dbCache || readDB();
+
     try {
-        const tempFile = `${DB_FILE}.tmp`;
-        fs.writeFileSync(tempFile, JSON.stringify(data, null, 2));
-        fs.renameSync(tempFile, DB_FILE);
+        fs.writeFileSync(DB_FILE, JSON.stringify(toSave, null, 2), 'utf8');
     } catch (error) {
         console.error('Error writing database file:', error);
     }
@@ -105,21 +114,30 @@ function getUserProfile(guildId, userId) {
 }
 
 /**
- * Add XP to user
+ * Add XP to user with rock-solid level calculation
  */
 function addXP(guildId, userId, xpToAdd = 5) {
     const db = readDB();
     const key = `${guildId}_${userId}`;
+
     if (!db.users[key]) {
         db.users[key] = { xp: 0, level: 0 };
     }
-    const current = db.users[key];
-    const oldLevel = current.level || Math.floor(current.xp / 150);
 
+    const current = db.users[key];
+    current.xp = (typeof current.xp === 'number' && !isNaN(current.xp)) ? current.xp : 0;
+
+    // Ensure old level is a number
+    const oldLevel = (typeof current.level === 'number' && !isNaN(current.level))
+        ? current.level
+        : Math.floor(current.xp / 150);
+
+    // Add XP and calculate new level
     current.xp += xpToAdd;
     const newLevel = Math.floor(current.xp / 150);
     current.level = newLevel;
 
+    // Trigger level up only when new level strictly exceeds old level
     const leveledUp = newLevel > oldLevel;
     writeDB(db);
 

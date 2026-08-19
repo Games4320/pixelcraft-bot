@@ -40,7 +40,8 @@ module.exports = {
                             title: '🎉 עלית רמה!',
                             description: `כל הכבוד ${message.author}! הגעת ל**רמה ${xpResult.newLevel}**! ⭐`,
                             color: COLORS.SUCCESS,
-                            thumbnail: message.author.displayAvatarURL({ dynamic: true })
+                            thumbnail: message.author.displayAvatarURL({ dynamic: true }),
+                            footerText: `${message.guild.name} • מערכת רמות`
                         });
                         await message.channel.send({ embeds: [levelEmbed] }).catch(() => {});
                     }
