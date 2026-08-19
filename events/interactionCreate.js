@@ -15,6 +15,7 @@ const { getGuildConfig, updateGuildConfig, getUserProfile, deductXP } = require(
 const { createEmbed, createErrorEmbed, createSuccessEmbed, COLORS } = require('../utils/embedBuilder');
 const { activeSetupSessions } = require('../commands/slash/xpshop');
 const { parseAndFormatMentions } = require('../utils/mentionParser');
+const { handleGiveawayButton } = require('../utils/giveawayManager');
 
 module.exports = {
     name: 'interactionCreate',
@@ -65,6 +66,8 @@ module.exports = {
                     await handleTicketAddUserButton(interaction);
                 } else if (interaction.customId.startsWith('drop_claim_')) {
                     await handleDropClaim(interaction);
+                } else if (interaction.customId === 'giveaway_join_btn') {
+                    await handleGiveawayButton(interaction);
                 } else if (interaction.customId === 'xpshop_btn_enter_xp') {
                     await handleXPShopOpenCostsModal(interaction);
                 }

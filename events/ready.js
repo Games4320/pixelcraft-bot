@@ -1,5 +1,6 @@
 const { ActivityType, REST, Routes } = require('discord.js');
 const { initInviteTracker } = require('../utils/inviteTracker');
+const { initGiveaways } = require('../utils/giveawayManager');
 
 module.exports = {
     name: 'ready',
@@ -18,6 +19,9 @@ module.exports = {
 
         // Initialize invite tracking cache for welcome message inviter detection
         await initInviteTracker(client);
+
+        // Resume any running giveaways across restarts
+        await initGiveaways(client);
 
         // Ensure clean global slash commands and clear duplicate guild-specific commands
         try {
