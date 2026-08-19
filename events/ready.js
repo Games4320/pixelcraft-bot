@@ -23,7 +23,7 @@ module.exports = {
         // Resume any running giveaways across restarts
         await initGiveaways(client);
 
-        // Ensure clean global slash commands and clear duplicate guild-specific commands
+        // Register slash commands instantly to all connected guilds and globally
         try {
             const commands = [];
             client.slashCommands.forEach(cmd => {
@@ -34,20 +34,21 @@ module.exports = {
             if (token && token !== 'YOUR_BOT_TOKEN_HERE') {
                 const rest = new REST({ version: '10' }).setToken(token);
 
-                // 1. Clear any duplicate guild-level commands from connected guilds
+                // 1. Instant deployment to all current guilds
                 for (const guild of client.guilds.cache.values()) {
                     await rest.put(
                         Routes.applicationGuildCommands(client.user.id, guild.id),
-                        { body: [] }
-                    ).catch(() => {});
+                        { body: commands }
+                    ).catch(e => console.log(`[AutoDeploy] Guild ${guild.name} notice:`, e.message));
+                    console.log(`[AutoDeploy] Slash commands instantly registered in guild: ${guild.name}`);
                 }
 
-                // 2. Register clean global commands
+                // 2. Register global commands
                 await rest.put(
                     Routes.applicationCommands(client.user.id),
                     { body: commands }
                 ).catch(e => console.log(`[AutoDeploy] Global notice:`, e.message));
-                console.log(`[AutoDeploy] Global slash commands synchronized cleanly (${commands.length} commands).`);
+                console.log(`[AutoDeploy] Global slash commands synchronized (${commands.length} commands).`);
             }
         } catch (err) {
             console.error('[AutoDeploy] Error during startup command registration:', err.message);
