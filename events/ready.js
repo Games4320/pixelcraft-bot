@@ -26,11 +26,11 @@ module.exports = {
         // Automatically set bot's server nickname to `${guild.name} Bot` in each guild
         for (const guild of client.guilds.cache.values()) {
             try {
-                const botMember = guild.members.me || await guild.members.fetchMe().catch(() => null);
-                if (botMember && botMember.manageable) {
+                const me = guild.members.me || await guild.members.fetchMe().catch(() => null);
+                if (me) {
                     const desiredNick = `${guild.name} Bot`.slice(0, 32);
-                    if (botMember.nickname !== desiredNick) {
-                        await botMember.setNickname(desiredNick).catch(() => {});
+                    if (me.nickname !== desiredNick) {
+                        await me.setNickname(desiredNick).catch(err => console.log(`[Nickname] Notice in ${guild.name}:`, err.message));
                         console.log(`[Nickname] Updated nickname in ${guild.name} to: "${desiredNick}"`);
                     }
                 }
