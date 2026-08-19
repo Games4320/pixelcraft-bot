@@ -7,7 +7,7 @@ module.exports = {
         .setDescription('מחיקת כמות הודעות מוגדרת מהערוץ הנוכחי')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
         .addIntegerOption(option =>
-            option.setName('amount')
+            option.setName('message_amount')
                 .setDescription('כמות ההודעות למחיקה (בין 1 ל-100)')
                 .setMinValue(1)
                 .setMaxValue(100)
@@ -26,7 +26,7 @@ module.exports = {
             });
         }
 
-        const amount = interaction.options.getInteger('amount');
+        const amount = interaction.options.getInteger('message_amount') || interaction.options.getInteger('amount');
         const targetUser = interaction.options.getUser('user');
         const channel = interaction.channel;
 
