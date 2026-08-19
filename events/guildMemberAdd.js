@@ -1,5 +1,6 @@
 const { getGuildConfig } = require('../utils/database');
 const { findInviter } = require('../utils/inviteTracker');
+const { parseAndFormatMentions } = require('../utils/mentionParser');
 
 module.exports = {
     name: 'guildMemberAdd',
@@ -17,12 +18,19 @@ module.exports = {
             const inviter = await findInviter(member);
             const inviterText = inviter ? `${inviter}` : 'Server / Direct Invite';
 
-            // Replace placeholders
+            // Replace placeholders and resolve role mentions
             let formattedMessage = config.welcome.message
-                .replace(/{join}/g, `${member}`)
+                .replace(/{join}|{user}|{member}/g, `${member}`)
+                .replace(/{username}/g, member.user.username)
+                .replace(/{server}|{guild}/g, member.guild.name)
                 .replace(/{inviter}/g, inviterText);
 
-            await channel.send(formattedMessage);
+            const { formattedText } = parseAndFormatMentions(formattedMessage, member.guild);
+
+            await channel.send({
+                content: formattedText,
+                allowedMentions: { parse: ['roles', 'users', 'everyone'] }
+            });
         } catch (error) {
             console.error('[guildMemberAdd] Error sending welcome message:', error);
         }

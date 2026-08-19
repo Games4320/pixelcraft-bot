@@ -1,6 +1,7 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { createEmbed, createErrorEmbed, COLORS } = require('../../utils/embedBuilder');
 const { getGuildConfig } = require('../../utils/database');
+const { parseAndFormatMentions } = require('../../utils/mentionParser');
 
 // Cooldown map: key = `${guildId}_${userId}`, value = expiration timestamp
 const cooldowns = new Map();
@@ -50,11 +51,14 @@ module.exports = {
         const config = getGuildConfig(message.guild.id);
         const template = config.hMessage || "תודה שפנית אלינו! חבר צוות יטפל בבקשתך בהקדם.\n**קטגוריה:** {category}\n**סיבה:** {reason}";
 
-        const formattedMessage = template
+        let formattedMessage = template
             .replace(/{category}/g, category)
             .replace(/{reason}/g, reason)
             .replace(/{server}|{guild}|{servername}/g, message.guild.name)
             .replace(/{user}|{member}/g, `${message.author}`);
+
+        const parsed = parseAndFormatMentions(formattedMessage, message.guild);
+        formattedMessage = parsed.formattedText;
 
         const embed = createEmbed({
             title: `🛠️ פניית תמיכה - ${message.guild.name}`,
@@ -78,7 +82,14 @@ module.exports = {
 
         const row = new ActionRowBuilder().addComponents(claimBtn);
 
-        await message.reply({ embeds: [embed], components: [row] });
+        const pingContent = parsed.pings.length > 0 ? parsed.pings.join(' ') : undefined;
+
+        await message.reply({
+            content: pingContent,
+            embeds: [embed],
+            components: [row],
+            allowedMentions: { parse: ['roles', 'users', 'everyone'] }
+        });
 
         // Set cooldown after successful execution
         cooldowns.set(cooldownKey, now + (COOLDOWN_SECONDS * 1000));

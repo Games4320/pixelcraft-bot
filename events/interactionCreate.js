@@ -14,6 +14,7 @@ const {
 const { getGuildConfig, updateGuildConfig, getUserProfile, deductXP } = require('../utils/database');
 const { createEmbed, createErrorEmbed, createSuccessEmbed, COLORS } = require('../utils/embedBuilder');
 const { activeSetupSessions } = require('../commands/slash/xpshop');
+const { parseAndFormatMentions } = require('../utils/mentionParser');
 
 module.exports = {
     name: 'interactionCreate',
@@ -495,6 +496,10 @@ async function handleTicketCreateSelect(interaction) {
                                 `צוות השרת קיבל הודעה ויעזור לך בהקדם. אנא תאר את פנייתך או בעייתך בפירוט למטה.`;
         }
 
+        // Resolve any role mentions (e.g. @Staff, @high-staff, {staff}) to valid Discord tags
+        const parsed = parseAndFormatMentions(ticketDescription, guild);
+        ticketDescription = parsed.formattedText;
+
         const embed = createEmbed({
             title: `🎫 פניית טיקט (${categoryLabel}) - ${guild.name}`,
             description: ticketDescription,
@@ -526,7 +531,16 @@ async function handleTicketCreateSelect(interaction) {
 
         const row = new ActionRowBuilder().addComponents(closeBtn, claimBtn, addUserBtn);
 
-        await ticketChannel.send({ content: `${user}`, embeds: [embed], components: [row] });
+        // Include user and all role pings in content so Discord triggers notification sounds/badges
+        const allPings = [user.toString(), ...parsed.pings.filter(p => p !== user.toString())];
+        const contentMessage = allPings.join(' ');
+
+        await ticketChannel.send({
+            content: contentMessage,
+            embeds: [embed],
+            components: [row],
+            allowedMentions: { parse: ['roles', 'users', 'everyone'] }
+        });
 
         await interaction.reply({
             content: `✅ הטיקט נוצר בהצלחה! היכנס לערוץ ${ticketChannel}`,
