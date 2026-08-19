@@ -47,6 +47,17 @@ module.exports = {
             '• `/drop prize:<פרס>` — יצירת דרופ עם לחיצה מהירה (הראשון שלוחץ זוכה).'
         ].join('\n');
 
+        const autoModField = [
+            '• **אנטי-פרסום (Anti-Invite):** מחיקה אוטומטית של קישורי הזמנה לשרתי דיסקורד אחרים ואזהרת השולח.',
+            '• **אנטי-ספאם (Anti-Spam):** מחיקה והגנה מפני שליחת הודעות מהירה (מעל 5 הודעות ב-4 שניות) או חזרה על אותה הודעה.',
+            '• **סינון קללות (Anti-Curse):** מחיקה אוטומטית של הודעות המכילות קללות וגידופים חמורים.',
+            '• *חברי צוות בעלי הרשאות ניהול הודעות/שרת עוקפים את מנגנון ה-AutoMod אוטומטית.*'
+        ].join('\n');
+
+        const reactionRolesField = [
+            '• `/reactionroles panel` — שליחת פאנל בחירת תפקידים בלחיצת כפתור (תומך עד 5 תפקידים, כפתורים מעוצבים ואימוג\'ים).'
+        ].join('\n');
+
         const embed = createEmbed({
             title: `🛡️ מדריך מנהלים מקיף - ${message.guild.name}`,
             description: `להלן כל המערכות, הפקודות והקשרים ביניהן בבוט **${message.guild.name} Bot**:`,
@@ -54,8 +65,10 @@ module.exports = {
             fields: [
                 { name: '🎫 מערכת טיקטים ותמיכה (Ticket System)', value: ticketField, inline: false },
                 { name: '🎁 מערכת הגרלות (Giveaways)', value: giveawayField, inline: false },
+                { name: '🛡️ מערכת הגנה אוטומטית (Auto-Mod)', value: autoModField, inline: false },
+                { name: '🎭 מערכת בחירת תפקידים (Reaction Roles)', value: reactionRolesField, inline: false },
+                { name: '⭐ מערכת XP, רמות ו-Leaderboard', value: xpField, inline: false },
                 { name: '🛠️ מערכת פניות מהירה (!h Support)', value: supportField, inline: false },
-                { name: '⭐ מערכת XP וחנות תפקידים', value: xpField, inline: false },
                 { name: '⚙️ ניהול שרת והגדרות כלליות', value: serverField, inline: false }
             ],
             footerText: `${message.guild.name} Bot • מדריך מנהלים`

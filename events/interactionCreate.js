@@ -68,6 +68,8 @@ module.exports = {
                     await handleDropClaim(interaction);
                 } else if (interaction.customId === 'giveaway_join_btn') {
                     await handleGiveawayButton(interaction);
+                } else if (interaction.customId.startsWith('reactionrole_btn_')) {
+                    await handleReactionRoleButton(interaction);
                 } else if (interaction.customId === 'xpshop_btn_enter_xp') {
                     await handleXPShopOpenCostsModal(interaction);
                 }
@@ -284,18 +286,30 @@ async function handleXPShopCostsModal(interaction) {
         });
     }
 
-    updateGuildConfig(interaction.guildId, 'xpshop', shopItems);
+    const config = getGuildConfig(interaction.guildId);
+    let currentShop = config.xpshop || [];
+
+    for (const newItem of shopItems) {
+        const existingIdx = currentShop.findIndex(i => i.roleId === newItem.roleId);
+        if (existingIdx !== -1) {
+            currentShop[existingIdx].xpCost = newItem.xpCost;
+        } else if (currentShop.length < 20) {
+            currentShop.push(newItem);
+        }
+    }
+
+    updateGuildConfig(interaction.guildId, 'xpshop', currentShop);
     activeSetupSessions.delete(interaction.guildId);
 
-    const embedList = shopItems.map((item, idx) => {
+    const embedList = currentShop.map((item, idx) => {
         const role = interaction.guild.roles.cache.get(item.roleId);
         return `**${idx + 1}.** ${role ? `<@&${role.id}>` : item.roleId} — **${item.xpCost} XP**`;
     }).join('\n');
 
     const successEmbed = createSuccessEmbed(
-        'חנות ה-XP הוגדרה בהצלחה!',
-        `חנות התפקידים נשמרה בהצלחה עם **${shopItems.length}** פריטים:\n\n${embedList}\n\n` +
-        `חברי השרת יכולים כעת לצפות ולממש תפקידים באמצעות \`/xpshop view\`!`
+        'חנות ה-XP עודכנה בהצלחה!',
+        `חנות התפקידים נשמרה בהצלחה עם **${currentShop.length}/20** תפקידים:\n\n${embedList}\n\n` +
+        `חברי השרת יכולים לצפות ולממש תפקידים באמצעות \`/xpshop view\`!`
     );
 
     await interaction.reply({ embeds: [successEmbed], ephemeral: true });
@@ -795,4 +809,31 @@ async function handleDropClaim(interaction) {
     await interaction.channel.send({
         content: `🎊 **מזל טוב!** ${interaction.user} זכה ב: **${prize}**`
     });
+}
+
+// ==========================================
+// REACTION ROLE SYSTEM HANDLER
+// ==========================================
+
+async function handleReactionRoleButton(interaction) {
+    const roleId = interaction.customId.replace('reactionrole_btn_', '');
+    const role = interaction.guild.roles.cache.get(roleId) || await interaction.guild.roles.fetch(roleId).catch(() => null);
+
+    if (!role) {
+        return interaction.reply({ content: '❌ התפקיד המשויך לכפתור זה אינו קיים יותר בשרת.', ephemeral: true });
+    }
+
+    const member = interaction.member;
+    try {
+        if (member.roles.cache.has(role.id)) {
+            await member.roles.remove(role);
+            return interaction.reply({ content: `❌ התפקיד **${role.name}** הוסר ממך בהצלחה.`, ephemeral: true });
+        } else {
+            await member.roles.add(role);
+            return interaction.reply({ content: `✅ קיבלת את התפקיד **${role.name}** בהצלחה! 🎉`, ephemeral: true });
+        }
+    } catch (err) {
+        console.error('Error toggling reaction role:', err);
+        return interaction.reply({ content: '❌ נכשל בעדכון התפקיד. וודא שלבוט יש הרשאות **ניהול תפקידים (Manage Roles)** ושהרול שלו נמצא מעל התפקיד המבוקש בהיררכיה!', ephemeral: true });
+    }
 }

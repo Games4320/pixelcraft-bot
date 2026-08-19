@@ -5,6 +5,7 @@ module.exports = {
     description: 'מציג את רשימת פקודות הבוט',
     async execute(message) {
         const prefixCommandsField = [
+            '`!lb` / `!top` — הצגת לוח 10 המובילים בשרת לפי XP ורמות (Leaderboard)',
             '`!status [@משתמש]` — הצגת סטטוס מפורט (הודעות, שיחות, XP, תפקיד, ותק, הזמנות)',
             '`!h <סיבה>` / `!h <קטגוריה> <סיבה>` — שליחת פניית תמיכה לצוות השרת',
             '`!ip` — הצגת כתובת ה-IP של שרת ה-Minecraft',
@@ -15,6 +16,7 @@ module.exports = {
         ].join('\n');
 
         const slashCommandsField = [
+            '`/leaderboard` — הצגת לוח מובילי ה-XP בשרת',
             '`/status [user]` — הצגת סטטוס מפורט על משתמש',
             '`/rank` — בדיקת ה-XP, הרמה וההתקדמות שלך',
             '`/xpshop view` — צפייה בחנות תפקידי ה-XP ורכישת תפקידים',

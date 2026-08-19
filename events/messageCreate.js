@@ -1,5 +1,6 @@
 const { addXP, incrementMessageCount } = require('../utils/database');
 const { createEmbed, COLORS } = require('../utils/embedBuilder');
+const { handleAutoMod } = require('../utils/autoMod');
 
 const PREFIX = '!';
 
@@ -21,6 +22,10 @@ module.exports = {
         processedMessages.add(message.id);
         // Clean up memory after 1 minute
         setTimeout(() => processedMessages.delete(message.id), 60000);
+
+        // 0. Auto-Mod Security Check (Anti-Invite, Anti-Spam, Anti-Curse)
+        const autoModResult = await handleAutoMod(message);
+        if (autoModResult.blocked) return;
 
         // Increment user's message counter
         incrementMessageCount(message.guild.id, message.author.id);
