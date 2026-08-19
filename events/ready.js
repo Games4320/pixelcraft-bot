@@ -11,9 +11,10 @@ module.exports = {
         console.log(`Serving in ${client.guilds.cache.size} servers.`);
         console.log(`====================================================`);
 
-        // Set rich bot status
+        // Set dynamic bot presence: Playing {serverCount} servers
+        const serverCount = client.guilds.cache.size;
         client.user.setPresence({
-            activities: [{ name: '/ticket | !help1', type: ActivityType.Playing }],
+            activities: [{ name: `${serverCount} servers`, type: ActivityType.Playing }],
             status: 'online'
         });
 

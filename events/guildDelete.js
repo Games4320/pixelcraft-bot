@@ -1,15 +1,9 @@
 const { ActivityType } = require('discord.js');
 
 module.exports = {
-    name: 'guildCreate',
+    name: 'guildDelete',
     async execute(guild, client) {
         try {
-            const me = guild.members.me || await guild.members.fetchMe().catch(() => null);
-            if (me) {
-                const desiredNick = `${guild.name} Bot`.slice(0, 32);
-                await me.setNickname(desiredNick).catch(() => {});
-            }
-
             if (client && client.user) {
                 client.user.setPresence({
                     activities: [{ name: `${client.guilds.cache.size} servers`, type: ActivityType.Playing }],
