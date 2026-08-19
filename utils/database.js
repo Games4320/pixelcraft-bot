@@ -57,7 +57,9 @@ function getGuildConfig(guildId) {
             hClaimRole: null, // Role ID allowed to claim !h requests
             xpshop: [],
             ticketCategory: null,
-            ticketMessage: null
+            ticketMessage: null,
+            serverIp: null,
+            serverVersion: null
         };
         writeDB(db);
     }
@@ -76,7 +78,9 @@ function updateGuildConfig(guildId, key, value) {
             hClaimRole: null,
             xpshop: [],
             ticketCategory: null,
-            ticketMessage: null
+            ticketMessage: null,
+            serverIp: null,
+            serverVersion: null
         };
     }
     db.guilds[guildId][key] = value;
