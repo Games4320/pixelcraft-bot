@@ -5,13 +5,13 @@ module.exports = {
     description: 'מציג את גרסת ה-Minecraft הנתמכת בשרת',
     async execute(message) {
         const embed = createEmbed({
-            title: '📌 גרסת שרת ה-Minecraft',
-            description: 'גרסת ה-Minecraft הנתמכת להתחברות:',
+            title: `📌 גרסת שרת ה-Minecraft - ${message.guild.name}`,
+            description: `גרסת ה-Minecraft הנתמכת להתחברות ל-**${message.guild.name}**:`,
             color: COLORS.INFO,
             fields: [
                 { name: 'גרסה נתמכת', value: '```1.21.8+```', inline: false }
             ],
-            footerText: 'תואם לגרסאות Minecraft 1.21.8 וחדשות יותר!'
+            footerText: `${message.guild.name} • תואם לגרסאות Minecraft 1.21.8 ומעלה!`
         });
 
         await message.reply({ embeds: [embed] });

@@ -9,7 +9,7 @@ const { onInviteCreate, onInviteDelete } = require('./utils/inviteTracker');
 const PORT = process.env.PORT || 3000;
 http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end('PixelCraft Discord Bot is running online 24/7!');
+    res.end('Discord Bot is running online 24/7!');
 }).listen(PORT, () => {
     console.log(`[HTTP Server] Health check listening on port ${PORT}`);
 });

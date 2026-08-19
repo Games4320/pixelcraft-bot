@@ -52,10 +52,12 @@ module.exports = {
 
         const formattedMessage = template
             .replace(/{category}/g, category)
-            .replace(/{reason}/g, reason);
+            .replace(/{reason}/g, reason)
+            .replace(/{server}|{guild}|{servername}/g, message.guild.name)
+            .replace(/{user}|{member}/g, `${message.author}`);
 
         const embed = createEmbed({
-            title: '🛠️ פניית תמיכה חדשה',
+            title: `🛠️ פניית תמיכה - ${message.guild.name}`,
             description: formattedMessage,
             color: COLORS.PRIMARY,
             fields: [
@@ -64,7 +66,8 @@ module.exports = {
                 { name: '📌 סטטוס', value: '⏳ ממתין לטיפול צוות', inline: true },
                 { name: '👨‍💼 שוייך ל', value: 'טרם שוייך', inline: true }
             ],
-            thumbnail: message.author.displayAvatarURL({ dynamic: true })
+            thumbnail: message.author.displayAvatarURL({ dynamic: true }),
+            footerText: `${message.guild.name} • מערכת תמיכה`
         });
 
         // Add Claim button for staff

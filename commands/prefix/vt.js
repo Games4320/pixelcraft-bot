@@ -47,7 +47,7 @@ module.exports = {
         }
 
         const embed = createEmbed({
-            title: '🎖️ בדיקת מעמד וותיק (Veteran)',
+            title: `🎖️ בדיקת מעמד וותיק (Veteran) - ${message.guild.name}`,
             color: qualifies ? COLORS.SUCCESS : COLORS.WARNING,
             thumbnail: member.user.displayAvatarURL({ dynamic: true }),
             fields: [
@@ -56,7 +56,8 @@ module.exports = {
                 { name: '⏱️ זמן בשרת', value: `**${diffDays}** ימים (~${diffMonths} חודשים)`, inline: true },
                 { name: '🎖️ זכאות לוותיק (6+ חודשים)', value: qualifies ? '🟢 **זכאי**' : '🔴 **עדיין לא זכאי**', inline: true },
                 { name: '📌 סטטוס תפקיד', value: roleStatusText, inline: false }
-            ]
+            ],
+            footerText: `${message.guild.name} • מערכת וותיקים`
         });
 
         await message.reply({ embeds: [embed] });

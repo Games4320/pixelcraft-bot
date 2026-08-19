@@ -9,7 +9,7 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
         .addStringOption(option =>
             option.setName('message')
-                .setDescription('תבנית ההודעה. משתנים נתמכים: {reason} לסיבה, {category} לקטגוריה')
+                .setDescription('תבנית ההודעה. משתנים: {reason}, {category}, {server}, {user}')
                 .setRequired(true)
         ),
     async execute(interaction) {
@@ -19,11 +19,13 @@ module.exports = {
 
         const embed = createSuccessEmbed(
             'תבנית הודעת תמיכה עודכנה בהצלחה',
-            `תבנית ההודעה עבור \`!h\` עודכנה בהצלחה!\n\n` +
+            `תבנית ההודעה עבור \`!h\` בשרת **${interaction.guild.name}** עודכנה בהצלחה!\n\n` +
             `**התבנית החדשה:**\n${template}\n\n` +
             `**משתנים נתמכים:**\n` +
             `• \`{reason}\` — יוחלף בסיבה שהזין המשתמש\n` +
-            `• \`{category}\` — יוחלף בקטגוריה של הפנייה`
+            `• \`{category}\` — יוחלף בקטגוריה של הפנייה\n` +
+            `• \`{server}\` — שם השרת (${interaction.guild.name})\n` +
+            `• \`{user}\` — תיוג המשתמש ששלח את הפנייה`
         );
 
         await interaction.reply({ embeds: [embed] });

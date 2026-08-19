@@ -12,7 +12,7 @@ const COLORS = {
 /**
  * Creates a standard styled embed
  */
-function createEmbed({ title, description, color = COLORS.PRIMARY, fields = [], footerText, thumbnail, author }) {
+function createEmbed({ title, description, color = COLORS.PRIMARY, fields = [], footerText, thumbnail, author, guild }) {
     const embed = new EmbedBuilder()
         .setColor(color)
         .setTimestamp();
@@ -24,8 +24,8 @@ function createEmbed({ title, description, color = COLORS.PRIMARY, fields = [], 
     if (author) embed.setAuthor(author);
     if (footerText) {
         embed.setFooter({ text: footerText });
-    } else {
-        embed.setFooter({ text: 'בוט בירזיה • Birzia Bot' });
+    } else if (guild && guild.name) {
+        embed.setFooter({ text: guild.name, iconURL: guild.iconURL ? guild.iconURL({ dynamic: true }) : undefined });
     }
 
     return embed;

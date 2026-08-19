@@ -56,7 +56,8 @@ function getGuildConfig(guildId) {
             hMessage: DEFAULT_H_MESSAGE,
             hClaimRole: null, // Role ID allowed to claim !h requests
             xpshop: [],
-            ticketCategory: null
+            ticketCategory: null,
+            ticketMessage: null
         };
         writeDB(db);
     }
@@ -74,7 +75,8 @@ function updateGuildConfig(guildId, key, value) {
             hMessage: DEFAULT_H_MESSAGE,
             hClaimRole: null,
             xpshop: [],
-            ticketCategory: null
+            ticketCategory: null,
+            ticketMessage: null
         };
     }
     db.guilds[guildId][key] = value;
@@ -109,7 +111,7 @@ function addXP(guildId, userId, xpToAdd = 5) {
     }
     const current = db.users[key];
     const oldLevel = current.level || Math.floor(current.xp / 150);
-    
+
     current.xp += xpToAdd;
     const newLevel = Math.floor(current.xp / 150);
     current.level = newLevel;

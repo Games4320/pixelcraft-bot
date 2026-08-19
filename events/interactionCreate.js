@@ -466,10 +466,16 @@ async function handleTicketCreateSelect(interaction) {
             permissionOverwrites
         });
 
-        let ticketDescription = `שלום ${user}! ברוך הבא לטיקט התמיכה שלך.\n\n` +
-                                `צוות השרת קיבל הודעה ויעזור לך בהקדם. אנא תאר את פנייתך או בעייתך בפירוט למטה.`;
+        const config = getGuildConfig(interaction.guildId);
 
-        if (category === 'staff_app') {
+        let ticketDescription = '';
+        if (config.ticketMessage) {
+            ticketDescription = config.ticketMessage
+                .replace(/{user}|{member}/g, `${user}`)
+                .replace(/{username}/g, user.username)
+                .replace(/{server}|{guild}|{servername}/g, guild.name)
+                .replace(/{category}/g, categoryLabel);
+        } else if (category === 'staff_app') {
             ticketDescription = `שלום ${user}! ברוך הבא לטיקט **בחינה והגשת מועמדות לצוות השרת** 📝\n\n` +
                                 `אנא ענה על השאלות הבאות בהודעה אחת מפורטת:\n` +
                                 `1️⃣ **שם מלא וגיל:**\n` +
@@ -484,17 +490,20 @@ async function handleTicketCreateSelect(interaction) {
                                 `• מה קרה ובאיזו שעה?\n` +
                                 `• הוכחות (תמונות, סרטונים, קישורים וכד').\n\n` +
                                 `צוות השרת יבדוק את המקרה בהקדם!`;
+        } else {
+            ticketDescription = `שלום ${user}! ברוך הבא לטיקט התמיכה שלך בשרת **${guild.name}**.\n\n` +
+                                `צוות השרת קיבל הודעה ויעזור לך בהקדם. אנא תאר את פנייתך או בעייתך בפירוט למטה.`;
         }
 
         const embed = createEmbed({
-            title: `🎫 פניית טיקט (${categoryLabel})`,
+            title: `🎫 פניית טיקט (${categoryLabel}) - ${guild.name}`,
             description: ticketDescription,
             color: category === 'staff_app' ? COLORS.SECONDARY || COLORS.PRIMARY : COLORS.PRIMARY,
             fields: [
                 { name: '🏷️ קטגוריה', value: `\`${categoryLabel}\``, inline: true },
                 { name: '👤 נפתח על ידי', value: `${user} (${user.tag})`, inline: true }
             ],
-            footerText: 'לחץ על "סגור טיקט" כאשר הפנייה תטופל.'
+            footerText: `${guild.name} • לחץ על "סגור טיקט" כאשר הפנייה תטופל.`
         });
 
         const closeBtn = new ButtonBuilder()

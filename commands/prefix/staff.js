@@ -8,8 +8,8 @@ module.exports = {
             await message.guild.members.fetch();
 
             const staffRoles = message.guild.roles.cache.filter(
-                role => role.name.toLowerCase().includes('staff') || 
-                        role.name.toLowerCase().includes('admin') || 
+                role => role.name.toLowerCase().includes('staff') ||
+                        role.name.toLowerCase().includes('admin') ||
                         role.name.toLowerCase().includes('mod') ||
                         role.name.includes('צוות') ||
                         role.name.includes('מנהל')
@@ -17,22 +17,24 @@ module.exports = {
 
             if (staffRoles.size === 0) {
                 const embed = createEmbed({
-                    title: '🛡️ צוות השרת',
-                    description: 'לא נמצאו תפקידי צוות בשרת (כגון Staff, Admin, צוות, מנהל).',
-                    color: COLORS.WARNING
+                    title: `🛡️ צוות השרת - ${message.guild.name}`,
+                    description: `לא נמצאו תפקידי צוות בשרת **${message.guild.name}** (כגון Staff, Admin, צוות, מנהל).`,
+                    color: COLORS.WARNING,
+                    footerText: `${message.guild.name} • רשימת צוות`
                 });
                 return message.reply({ embeds: [embed] });
             }
 
-            const staffMembers = message.guild.members.cache.filter(member => 
+            const staffMembers = message.guild.members.cache.filter(member =>
                 !member.user.bot && member.roles.cache.some(r => staffRoles.has(r.id))
             );
 
             if (staffMembers.size === 0) {
                 const embed = createEmbed({
-                    title: '🛡️ צוות השרת',
-                    description: 'אין כרגע משתמשים עם תפקיד צוות שויך.',
-                    color: COLORS.WARNING
+                    title: `🛡️ צוות השרת - ${message.guild.name}`,
+                    description: `אין כרגע משתמשים עם תפקיד צוות משויך בשרת **${message.guild.name}**.`,
+                    color: COLORS.WARNING,
+                    footerText: `${message.guild.name} • רשימת צוות`
                 });
                 return message.reply({ embeds: [embed] });
             }
@@ -46,10 +48,10 @@ module.exports = {
             }).join('\n');
 
             const embed = createEmbed({
-                title: '🛡️ צוות השרת',
+                title: `🛡️ צוות השרת - ${message.guild.name}`,
                 description: staffList.length > 3900 ? staffList.substring(0, 3900) + '...\n*(הרשימה קוצרה)*' : staffList,
                 color: COLORS.PRIMARY,
-                footerText: `סה"כ חברי צוות: ${staffMembers.size}`
+                footerText: `${message.guild.name} • סה"כ חברי צוות: ${staffMembers.size}`
             });
 
             await message.reply({ embeds: [embed] });

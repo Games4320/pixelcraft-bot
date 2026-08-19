@@ -12,7 +12,7 @@ module.exports = {
 
         // Set rich bot status
         client.user.setPresence({
-            activities: [{ name: 'play.birzia.co.il | !help1', type: ActivityType.Playing }],
+            activities: [{ name: '/ticket | !help1', type: ActivityType.Playing }],
             status: 'online'
         });
 
