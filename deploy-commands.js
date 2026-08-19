@@ -38,21 +38,26 @@ const rest = new REST({ version: '10' }).setToken(token);
     try {
         console.log(`\nStarted refreshing ${commands.length} application (/) commands.`);
 
-        if (guildId && guildId !== 'YOUR_GUILD_ID_HERE') {
-            console.log(`Registering commands to specific test Guild ID: ${guildId}`);
-            const data = await rest.put(
-                Routes.applicationGuildCommands(clientId, guildId),
-                { body: commands }
-            );
-            console.log(`✅ Successfully reloaded ${data.length} guild slash commands.`);
-        } else {
-            console.log(`Registering commands globally to all guilds...`);
-            const data = await rest.put(
-                Routes.applicationCommands(clientId),
-                { body: commands }
-            );
-            console.log(`✅ Successfully reloaded ${data.length} global slash commands.`);
+        // 1. Instant deployment to all current guilds
+        try {
+            const guilds = await rest.get(Routes.userGuilds());
+            for (const guild of guilds) {
+                await rest.put(
+                    Routes.applicationGuildCommands(clientId, guild.id),
+                    { body: commands }
+                );
+                console.log(`✅ Instantly deployed ${commands.length} commands to guild: ${guild.name}`);
+            }
+        } catch (guildErr) {
+            console.log('Notice deploying to guilds:', guildErr.message);
         }
+
+        // 2. Global deployment
+        const data = await rest.put(
+            Routes.applicationCommands(clientId),
+            { body: commands }
+        );
+        console.log(`✅ Successfully reloaded ${data.length} global slash commands.`);
     } catch (error) {
         console.error('❌ Error deploying slash commands:', error);
     }
