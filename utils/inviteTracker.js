@@ -66,9 +66,29 @@ function onInviteDelete(invite) {
     }
 }
 
+/**
+ * Get total invite uses for a specific user in a guild
+ */
+async function getUserInvitesCount(guild, userId) {
+    try {
+        const guildInvites = await guild.invites.fetch().catch(() => null);
+        if (!guildInvites) return 0;
+        let total = 0;
+        guildInvites.forEach(inv => {
+            if (inv.inviter && inv.inviter.id === userId) {
+                total += (inv.uses || 0);
+            }
+        });
+        return total;
+    } catch (err) {
+        return 0;
+    }
+}
+
 module.exports = {
     initInviteTracker,
     findInviter,
+    getUserInvitesCount,
     onInviteCreate,
     onInviteDelete
 };

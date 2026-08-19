@@ -1,4 +1,4 @@
-const { addXP } = require('../utils/database');
+const { addXP, incrementMessageCount } = require('../utils/database');
 const { createEmbed, COLORS } = require('../utils/embedBuilder');
 
 const PREFIX = '!';
@@ -21,6 +21,9 @@ module.exports = {
         processedMessages.add(message.id);
         // Clean up memory after 1 minute
         setTimeout(() => processedMessages.delete(message.id), 60000);
+
+        // Increment user's message counter
+        incrementMessageCount(message.guild.id, message.author.id);
 
         // Check if message is a prefix command
         const isCommand = message.content.startsWith(PREFIX);

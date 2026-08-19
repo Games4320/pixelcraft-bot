@@ -98,7 +98,7 @@ function updateGuildConfig(guildId, key, value) {
 }
 
 /**
- * Get user profile (XP & Level)
+ * Get user profile (XP, Level, Messages, Voice Time)
  */
 function getUserProfile(guildId, userId) {
     const db = readDB();
@@ -106,11 +106,45 @@ function getUserProfile(guildId, userId) {
     if (!db.users[key]) {
         db.users[key] = {
             xp: 0,
-            level: 0
+            level: 0,
+            messages: 0,
+            voiceTimeMs: 0
         };
         writeDB(db);
     }
-    return db.users[key];
+    const profile = db.users[key];
+    if (typeof profile.messages !== 'number') profile.messages = 0;
+    if (typeof profile.voiceTimeMs !== 'number') profile.voiceTimeMs = 0;
+    return profile;
+}
+
+/**
+ * Increment user messages count
+ */
+function incrementMessageCount(guildId, userId) {
+    const db = readDB();
+    const key = `${guildId}_${userId}`;
+    if (!db.users[key]) {
+        db.users[key] = { xp: 0, level: 0, messages: 0, voiceTimeMs: 0 };
+    }
+    db.users[key].messages = (db.users[key].messages || 0) + 1;
+    writeDB(db);
+    return db.users[key].messages;
+}
+
+/**
+ * Add voice duration in ms to user
+ */
+function addVoiceTime(guildId, userId, ms) {
+    if (!ms || ms <= 0) return;
+    const db = readDB();
+    const key = `${guildId}_${userId}`;
+    if (!db.users[key]) {
+        db.users[key] = { xp: 0, level: 0, messages: 0, voiceTimeMs: 0 };
+    }
+    db.users[key].voiceTimeMs = (db.users[key].voiceTimeMs || 0) + ms;
+    writeDB(db);
+    return db.users[key].voiceTimeMs;
 }
 
 /**
@@ -171,6 +205,8 @@ module.exports = {
     getGuildConfig,
     updateGuildConfig,
     getUserProfile,
+    incrementMessageCount,
+    addVoiceTime,
     addXP,
     deductXP
 };
