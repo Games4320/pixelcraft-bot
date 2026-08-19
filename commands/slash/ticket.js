@@ -38,15 +38,6 @@ module.exports = {
                 )
         )
         .addSubcommand(subcommand =>
-            subcommand.setName('set-message')
-                .setDescription('הגדרת הודעת פתיחה מותאמת אישית בעת פתיחת טיקט')
-                .addStringOption(option =>
-                    option.setName('message')
-                        .setDescription('תוכן ההודעה שתוצג בטיקט (משתנים: {user}, {username}, {server}, {category})')
-                        .setRequired(true)
-                )
-        )
-        .addSubcommand(subcommand =>
             subcommand.setName('reset-message')
                 .setDescription('איפוס הודעת פתיחת הטיקט להודעת ברירת המחדל')
         ),
@@ -102,7 +93,7 @@ module.exports = {
             const row = new ActionRowBuilder().addComponents(selectMenu);
 
             await interaction.reply({ embeds: [embed], components: [row] });
-        } else if ((group === 'set' && subcommand === 'message') || subcommand === 'set-message') {
+        } else if (group === 'set' && subcommand === 'message') {
             if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
                 return interaction.reply({ content: '❌ דרושות הרשאות ניהול שרת כדי להגדיר את הודעת הטיקטים.', ephemeral: true });
             }
