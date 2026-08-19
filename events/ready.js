@@ -23,6 +23,20 @@ module.exports = {
         // Resume any running giveaways across restarts
         await initGiveaways(client);
 
+        // Automatically set bot's server nickname to `${guild.name} Bot` in each guild
+        for (const guild of client.guilds.cache.values()) {
+            try {
+                const botMember = guild.members.me || await guild.members.fetchMe().catch(() => null);
+                if (botMember && botMember.manageable) {
+                    const desiredNick = `${guild.name} Bot`.slice(0, 32);
+                    if (botMember.nickname !== desiredNick) {
+                        await botMember.setNickname(desiredNick).catch(() => {});
+                        console.log(`[Nickname] Updated nickname in ${guild.name} to: "${desiredNick}"`);
+                    }
+                }
+            } catch (e) {}
+        }
+
         // Synchronize slash commands globally and clear guild overrides to prevent duplicates
         try {
             const commands = [];

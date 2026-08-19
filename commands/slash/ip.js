@@ -47,7 +47,7 @@ module.exports = {
 
         // View IP
         const config = getGuildConfig(interaction.guildId);
-        const serverIp = config.serverIp || 'play.birzia.co.il';
+        const serverIp = config.serverIp || 'טרם הוגדרה כתובת IP (מנהלים יכולים להגדיר באמצעות /ip set ip)';
 
         const embed = createEmbed({
             title: `🎮 כתובת שרת ה-Minecraft - ${interaction.guild.name}`,
@@ -56,7 +56,7 @@ module.exports = {
             fields: [
                 { name: 'כתובת השרת (IP)', value: `\`\`\`${serverIp}\`\`\``, inline: false }
             ],
-            footerText: `${interaction.guild.name} • העתק והדבק ברשימת השרתים ב-Minecraft!`
+            footerText: `${interaction.guild.name} Bot • העתק והדבק ברשימת השרתים ב-Minecraft!`
         });
 
         return interaction.reply({ embeds: [embed] });

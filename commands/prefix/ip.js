@@ -42,7 +42,7 @@ module.exports = {
         }
 
         const config = getGuildConfig(message.guild.id);
-        const serverIp = config.serverIp || 'play.birzia.co.il';
+        const serverIp = config.serverIp || 'טרם הוגדרה כתובת IP (מנהלים יכולים להגדיר באמצעות !ip set <כתובת>)';
 
         const embed = createEmbed({
             title: `🎮 כתובת שרת ה-Minecraft - ${message.guild.name}`,
@@ -51,7 +51,7 @@ module.exports = {
             fields: [
                 { name: 'כתובת השרת (IP)', value: `\`\`\`${serverIp}\`\`\``, inline: false }
             ],
-            footerText: `${message.guild.name} • העתק והדבק ברשימת השרתים ב-Minecraft!`
+            footerText: `${message.guild.name} Bot • העתק והדבק ברשימת השרתים ב-Minecraft!`
         });
 
         await message.reply({ embeds: [embed] });

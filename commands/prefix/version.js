@@ -51,7 +51,7 @@ module.exports = {
             fields: [
                 { name: 'גרסה נתמכת', value: `\`\`\`${serverVersion}\`\`\``, inline: false }
             ],
-            footerText: `${message.guild.name} • תואם לגרסאות Minecraft ${serverVersion}!`
+            footerText: `${message.guild.name} Bot • תואם לגרסאות Minecraft ${serverVersion}!`
         });
 
         await message.reply({ embeds: [embed] });

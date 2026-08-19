@@ -56,7 +56,7 @@ module.exports = {
             fields: [
                 { name: 'גרסה נתמכת', value: `\`\`\`${serverVersion}\`\`\``, inline: false }
             ],
-            footerText: `${interaction.guild.name} • תואם לגרסאות Minecraft ${serverVersion}!`
+            footerText: `${interaction.guild.name} Bot • תואם לגרסאות Minecraft ${serverVersion}!`
         });
 
         return interaction.reply({ embeds: [embed] });
