@@ -61,10 +61,19 @@ function initVoiceXPLoop(client) {
                                 footerText: `${guild.name} • מערכת רמות קוליות`
                             });
 
-                            // Try to find channel to announce level up
-                            const announceChannel = guild.systemChannel ||
-                                guild.channels.cache.find(c => c.isTextBased() && c.permissionsFor(guild.members.me)?.has('SendMessages'));
-                            if (announceChannel) {
+                            // Try to find channel to announce level up (prioritizing custom leveling room)
+                            let announceChannel = null;
+                            if (config.levelingChannelId) {
+                                announceChannel = guild.channels.cache.get(config.levelingChannelId) ||
+                                    await guild.channels.fetch(config.levelingChannelId).catch(() => null);
+                            }
+
+                            if (!announceChannel) {
+                                announceChannel = guild.systemChannel ||
+                                    guild.channels.cache.find(c => c.isTextBased() && c.permissionsFor(guild.members.me)?.has('SendMessages'));
+                            }
+
+                            if (announceChannel && announceChannel.isTextBased()) {
                                 await announceChannel.send({ embeds: [levelEmbed] }).catch(() => {});
                             }
                         }

@@ -60,6 +60,20 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand.setName('clear-lockrole')
                 .setDescription('ביטול והסרת הגדרת רול הנעילה')
+        )
+        .addSubcommand(subcommand =>
+            subcommand.setName('levelingroom')
+                .setDescription('הגדרת ערוץ ייעודי להודעות עליית רמה (Level Up) למניעת הצפה בצ\'אט')
+                .addChannelOption(option =>
+                    option.setName('channel')
+                        .setDescription('ערוץ הטקסט שבו ישלחו הודעות עליית רמה')
+                        .addChannelTypes(ChannelType.GuildText)
+                        .setRequired(true)
+                )
+        )
+        .addSubcommand(subcommand =>
+            subcommand.setName('clear-levelingroom')
+                .setDescription('ביטול והסרת ערוץ הודעות עליית הרמה (ההודעות ישלחו בערוץ שבו התרחשה עליית הרמה)')
         ),
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
@@ -146,6 +160,25 @@ module.exports = {
                 embeds: [createSuccessEmbed(
                     'רול נעילת חירום בוטל',
                     'הגדרת רול הנעילה בוטלה בהצלחה.'
+                )]
+            });
+        } else if (subcommand === 'levelingroom') {
+            const channel = interaction.options.getChannel('channel');
+            updateGuildConfig(interaction.guildId, 'levelingChannelId', channel.id);
+
+            return interaction.reply({
+                embeds: [createSuccessEmbed(
+                    'חדר הודעות עליית רמה הוגדר בהצלחה ⭐',
+                    `הערוץ ${channel} הוגדר כעת כ**חדר הודעות עליית הרמה** של השרת!\nכל הודעות ה-Level Up ישלחו מעתה אך ורק לערוץ זה למניעת הצפה בצ'אט הראשי.`
+                )]
+            });
+        } else if (subcommand === 'clear-levelingroom') {
+            updateGuildConfig(interaction.guildId, 'levelingChannelId', null);
+
+            return interaction.reply({
+                embeds: [createSuccessEmbed(
+                    'חדר הודעות עליית רמה הוסר',
+                    'הגדרת חדר הודעות עליית הרמה בוטלה בהצלחה. הודעות Level Up ישלחו שוב בערוץ שבו התרחשה עליית הרמה.'
                 )]
             });
         }

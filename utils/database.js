@@ -74,7 +74,8 @@ function getGuildConfig(guildId) {
             autoRoleId: null,
             logsChannelId: null,
             lockdownRoleId: null,
-            lockdownData: null
+            lockdownData: null,
+            levelingChannelId: null
         };
         writeDB(db);
     }
@@ -84,6 +85,7 @@ function getGuildConfig(guildId) {
     if (cfg.logsChannelId === undefined) cfg.logsChannelId = null;
     if (cfg.lockdownRoleId === undefined) cfg.lockdownRoleId = null;
     if (cfg.lockdownData === undefined) cfg.lockdownData = null;
+    if (cfg.levelingChannelId === undefined) cfg.levelingChannelId = null;
     return cfg;
 }
 
@@ -107,7 +109,8 @@ function updateGuildConfig(guildId, key, value) {
             autoRoleId: null,
             logsChannelId: null,
             lockdownRoleId: null,
-            lockdownData: null
+            lockdownData: null,
+            levelingChannelId: null
         };
     }
     db.guilds[guildId][key] = value;

@@ -1,4 +1,4 @@
-const { addXP, incrementMessageCount } = require('../utils/database');
+const { addXP, incrementMessageCount, getGuildConfig } = require('../utils/database');
 const { createEmbed, COLORS } = require('../utils/embedBuilder');
 const { handleAutoMod } = require('../utils/autoMod');
 
@@ -57,7 +57,19 @@ module.exports = {
                             thumbnail: message.author.displayAvatarURL({ dynamic: true }),
                             footerText: `${message.guild.name} • מערכת רמות ו-XP`
                         });
-                        await message.channel.send({ embeds: [levelEmbed] }).catch(() => {});
+
+                        const config = getGuildConfig(message.guild.id);
+                        let targetChannel = message.channel;
+
+                        if (config.levelingChannelId) {
+                            const customChannel = message.guild.channels.cache.get(config.levelingChannelId) ||
+                                await message.guild.channels.fetch(config.levelingChannelId).catch(() => null);
+                            if (customChannel && customChannel.isTextBased()) {
+                                targetChannel = customChannel;
+                            }
+                        }
+
+                        await targetChannel.send({ embeds: [levelEmbed] }).catch(() => {});
                     }
                 } catch (err) {
                     console.error('Error adding XP:', err);

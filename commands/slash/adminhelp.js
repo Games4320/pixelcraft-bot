@@ -38,6 +38,7 @@ module.exports = {
         const xpField = [
             '• `/rank [user]` או `!rank [@user]` — בדיקת ה-XP, הרמה וההתקדמות (+15-25 XP על הודעה, +3 XP לכל דקת שיחה קולית).',
             '• `/set afkroom channel:<ערוץ>` (או `!setafk`) — הגדרת חדר שיחה קולי כ-AFK (שבו לא מקבלים Voice XP).',
+            '• `/set levelingroom channel:<ערוץ>` — הגדרת ערוץ ייעודי להודעות עליית רמה (Level Up) למניעת הצפה בצ\'אט.',
             '• `/xpshop setup` — הגדרת חנות תפקידים ועלויות XP עבור חברי השרת.',
             '• `/xpshop view` — צפייה בחנות ומימוש תפקידים ב-XP על ידי שחקנים.',
             '• `/xp add/remove/set/reset user:<משתמש> amount:<כמות>` — ניהול נקודות XP של שחקנים (למנהלים).'

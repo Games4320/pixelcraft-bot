@@ -25,7 +25,12 @@
         }
       ],
       "ticketCategory": null,
-      "hClaimRole": "1528695299759935609"
+      "hClaimRole": "1528695299759935609",
+      "afkVoiceChannelId": null,
+      "autoRoleId": null,
+      "logsChannelId": null,
+      "lockdownRoleId": null,
+      "lockdownData": null
     },
     "1393164361127821392": {
       "welcome": null,
@@ -36,7 +41,44 @@
       "ticketMessage": null,
       "serverIp": null,
       "serverVersion": null,
-      "veteranRoleId": null
+      "veteranRoleId": null,
+      "afkVoiceChannelId": null,
+      "autoRoleId": null,
+      "logsChannelId": null,
+      "lockdownRoleId": null,
+      "lockdownData": null
+    },
+    "1413136652661952544": {
+      "welcome": null,
+      "hMessage": "תודה שפנית אלינו! חבר צוות יטפל בבקשתך בהקדם.\n**קטגוריה:** {category}\n**סיבה:** {reason}",
+      "hClaimRole": null,
+      "xpshop": [],
+      "ticketCategory": null,
+      "ticketMessage": null,
+      "serverIp": null,
+      "serverVersion": null,
+      "veteranRoleId": null,
+      "afkVoiceChannelId": null,
+      "autoRoleId": null,
+      "logsChannelId": null,
+      "lockdownRoleId": null,
+      "lockdownData": null
+    },
+    "1523796286019604643": {
+      "welcome": null,
+      "hMessage": "תודה שפנית אלינו! חבר צוות יטפל בבקשתך בהקדם.\n**קטגוריה:** {category}\n**סיבה:** {reason}",
+      "hClaimRole": null,
+      "xpshop": [],
+      "ticketCategory": null,
+      "ticketMessage": null,
+      "serverIp": null,
+      "serverVersion": null,
+      "veteranRoleId": null,
+      "afkVoiceChannelId": null,
+      "autoRoleId": null,
+      "logsChannelId": null,
+      "lockdownRoleId": null,
+      "lockdownData": null
     }
   },
   "users": {
@@ -124,6 +166,30 @@
     },
     "1393164361127821392_1389983027915919501": {
       "xp": 0,
+      "level": 0,
+      "messages": 2,
+      "voiceTimeMs": 0
+    },
+    "1523796286019604643_1427264831286939821": {
+      "xp": 168,
+      "level": 1,
+      "messages": 22,
+      "voiceTimeMs": 0
+    },
+    "1523796286019604643_1389983027915919501": {
+      "xp": 21,
+      "level": 0,
+      "messages": 1,
+      "voiceTimeMs": 0
+    },
+    "1523796286019604643_1408055442831310948": {
+      "xp": 17,
+      "level": 0,
+      "messages": 2,
+      "voiceTimeMs": 0
+    },
+    "1523796286019604643_1487110488230727730": {
+      "xp": 19,
       "level": 0,
       "messages": 2,
       "voiceTimeMs": 0
