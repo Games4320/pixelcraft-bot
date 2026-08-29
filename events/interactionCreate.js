@@ -1,4 +1,5 @@
 const {
+    PermissionFlagsBits,
     ActionRowBuilder,
     ModalBuilder,
     TextInputBuilder,
@@ -25,6 +26,14 @@ module.exports = {
             if (interaction.isChatInputCommand()) {
                 const command = client.slashCommands.get(interaction.commandName);
                 if (!command) return;
+
+                // Admin-Only Gate: כל פקודות הסלאש זמינות לאדמיניסטרטורים בלבד
+                if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
+                    return interaction.reply({
+                        embeds: [createErrorEmbed('⛔ פקודה זו זמינה **לאדמיניסטרטורים בלבד**!')],
+                        ephemeral: true
+                    });
+                }
 
                 await command.execute(interaction, client);
                 return;
