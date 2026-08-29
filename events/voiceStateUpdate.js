@@ -1,6 +1,7 @@
 const { addVoiceTime, addXP, getGuildConfig } = require('../utils/database');
 const { createEmbed, COLORS } = require('../utils/embedBuilder');
 const { logVoiceState } = require('../utils/logger');
+const { getJoinToCreateChannelId, isTempVoiceChannel, createTempChannel, handleLeave, handleSwitch } = require('../utils/tempvoice');
 
 const activeVoiceSessions = new Map();
 let voiceXPIntervalStarted = false;
@@ -130,6 +131,16 @@ module.exports = {
             activeVoiceSessions.set(key, Date.now());
             const channelName = newState.channel?.name || 'ערוץ קולי';
             await logVoiceState(member.guild, member, 'switch', channelName).catch(() => {});
+
+            // TempVoice: מעבר בין ערוצים - ניקוי ערוץ זמני ריק אם צריך
+            if (isTempVoiceChannel(guildId, oldState.channelId)) {
+                await handleSwitch(oldState, newState).catch(err => console.error('[TempVoice] Error:', err));
+            }
+        }
+
+        // TempVoice: יציאה מערוץ זמני - מחיקה אם התרוקן
+        if (wasInVoice && isTempVoiceChannel(guildId, oldState.channelId)) {
+            await handleLeave(oldState).catch(err => console.error('[TempVoice] Error:', err));
         }
     }
 };

@@ -2,6 +2,7 @@ const { ActivityType, REST, Routes } = require('discord.js');
 const { initInviteTracker } = require('../utils/inviteTracker');
 const { initGiveaways } = require('../utils/giveawayManager');
 const { initVoiceXPLoop } = require('./voiceStateUpdate');
+const { cleanupOrphanedChannels } = require('../utils/tempvoice');
 
 module.exports = {
     name: 'ready',
@@ -25,6 +26,8 @@ module.exports = {
         // Resume any running giveaways across restarts
         await initGiveaways(client);
 
+        // TempVoice: clean up orphaned temp channels
+        cleanupOrphanedChannels(client);
         // Start Voice XP interval loop (3 XP/minute)
         initVoiceXPLoop(client);
 

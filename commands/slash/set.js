@@ -74,6 +74,36 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand.setName('clear-levelingroom')
                 .setDescription('ביטול והסרת ערוץ הודעות עליית הרמה (ההודעות ישלחו בערוץ שבו התרחשה עליית הרמה)')
+        )
+        .addSubcommand(subcommand =>
+            subcommand.setName('jtcroom')
+                .setDescription('הגדרת ערוץ "הצטרף כדי ליצור" (Join to Create) למערכת TempVoice')
+                .addChannelOption(option =>
+                    option.setName('channel')
+                        .setDescription('הערוץ הקולי שאליו מצטרפים כדי לקבל ערוץ זמני משלך')
+                        .addChannelTypes(ChannelType.GuildVoice)
+                        .setRequired(true)
+                )
+                .addChannelOption(option =>
+                    option.setName('category')
+                        .setDescription('קטגוריה שבה ייווצרו הערוצים הזמניים (אופציונלי)')
+                        .addChannelTypes(ChannelType.GuildCategory)
+                        .setRequired(false)
+                )
+        )
+        .addSubcommand(subcommand =>
+            subcommand.setName('jtcname')
+                .setDescription('הגדרת תבנית השם לערוצים הזמניים ({user} = שם המשתמש)')
+                .addStringOption(option =>
+                    option.setName('template')
+                        .setDescription('לדוגמה: ערוץ של {user}')
+                        .setMaxLength(50)
+                        .setRequired(true)
+                )
+        )
+        .addSubcommand(subcommand =>
+            subcommand.setName('clear-jtcroom')
+                .setDescription('ביטול והסרת מערכת TempVoice (ערוצים קיימים לא יימחקו)')
         ),
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
@@ -179,6 +209,46 @@ module.exports = {
                 embeds: [createSuccessEmbed(
                     'חדר הודעות עליית רמה הוסר',
                     'הגדרת חדר הודעות עליית הרמה בוטלה בהצלחה. הודעות Level Up ישלחו שוב בערוץ שבו התרחשה עליית הרמה.'
+                )]
+            });
+        } else if (subcommand === 'jtcroom') {
+            const channel = interaction.options.getChannel('channel');
+            const category = interaction.options.getChannel('category');
+            const { setJoinToCreateChannel } = require('../../utils/tempvoice');
+            setJoinToCreateChannel(interaction.guildId, channel.id, category?.id || null);
+
+            return interaction.reply({
+                embeds: [createSuccessEmbed(
+                    '🎙️ מערכת TempVoice הוגדרה בהצלחה!',
+                    `הערוץ ${channel} הוגדר כעת כערוץ **הצטרף כדי ליצור** (Join to Create)!\n` +
+                    `כל מי שיצטרף אליו יקבל **ערוץ קולי זמני משל עצמו** עם שליטה מלאה (נעילה, הגבלה, שינוי שם ועוד) באמצעות פקודת \`/voice\`.\n` +
+                    (category ? `הערוצים הזמניים ייווצרו בקטגוריה ${category}.\n` : '') +
+                    `⚠️ הערוץ יימחק אוטומטית כשכולם יעזבו.`
+                )]
+            });
+        } else if (subcommand === 'jtcname') {
+            const template = interaction.options.getString('template');
+            const { getTVData, DEFAULT_CHANNEL_NAME } = require('../../utils/tempvoice');
+            const { readDB, writeDB } = require('../../utils/database');
+            const data = getTVData(interaction.guildId);
+            data.channelName = template || DEFAULT_CHANNEL_NAME;
+            writeDB(readDB());
+
+            return interaction.reply({
+                embeds: [createSuccessEmbed(
+                    '✏️ תבנית שם עודכנה',
+                    `תבנית שם הערוצים הזמניים הוגדרה ל: **${template}**\n` +
+                    `תמיכה במשתנים: \`{user}\` = שם המשתמש, \`{nickname}\` = הכינוי.`
+                )]
+            });
+        } else if (subcommand === 'clear-jtcroom') {
+            const { clearJoinToCreateChannel } = require('../../utils/tempvoice');
+            clearJoinToCreateChannel(interaction.guildId);
+
+            return interaction.reply({
+                embeds: [createSuccessEmbed(
+                    'מערכת TempVoice בוטלה',
+                    'הגדרת ערוץ ה-**Join to Create** בוטלה בהצלחה. ערוצים זמניים קיימים לא יימחקו.'
                 )]
             });
         }
