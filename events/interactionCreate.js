@@ -27,8 +27,8 @@ module.exports = {
                 const command = client.slashCommands.get(interaction.commandName);
                 if (!command) return;
 
-                // Admin-Only Gate: כל פקודות הסלאש זמינות לאדמיניסטרטורים בלבד
-                if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
+                // Admin-Only Gate: כל פקודות הסלאש זמינות לאדמיניסטרטורים בלבד (למעט /servers שמיועדת ל-DM)
+                if (interaction.commandName !== 'servers' && !interaction.memberPermissions?.has(PermissionFlagsBits.Administrator)) {
                     return interaction.reply({
                         embeds: [createErrorEmbed('⛔ פקודה זו זמינה **לאדמיניסטרטורים בלבד**!')],
                         ephemeral: true
