@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PixelCraft Bot - פאנל ניהול</title>
+    <style>
+      :root {
+        --bg: #0f1117;
+        --card: #1a1d27;
+        --card2: #222634;
+        --text: #e6e8ef;
+        --muted: #8b90a0;
+        --accent: #5865f2;
+        --green: #3ba55d;
+        --red: #ed4245;
+        --gold: #faa61a;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, sans-serif;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+      }
+      header {
+        background: var(--card);
+        padding: 18px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid var(--accent);
+        position: sticky;
+        top: 0;
+      }
+      header h1 {
+        font-size: 1.3rem;
+      }
+      header h1 span {
+        color: var(--accent);
+      }
+      #status {
+        display: flex;
+        gap: 14px;
+        font-size: 0.85rem;
+        color: var(--muted);
+        align-items: center;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--green);
+        display: inline-block;
+        margin-left: 6px;
+      }
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 20px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin-bottom: 28px;
+      }
+      .stat {
+        background: var(--card);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid #2a2e3d;
+      }
+      .stat .num {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .stat .lbl {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin-top: 4px;
+      }
+      h2 {
+        font-size: 1.05rem;
+        margin: 26px 0 12px;
+        color: var(--accent);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--card);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      th,
+      td {
+        padding: 12px 16px;
+        text-align: right;
+        border-bottom: 1px solid #2a2e3d;
+        font-size: 0.9rem;
+      }
+      th {
+        background: var(--card2);
+        color: var(--muted);
+        font-weight: 600;
+      }
+      tr:hover td {
+        background: #252a3a;
+      }
+      .badge {
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+      }
+      .on {
+        background: rgba(59, 165, 93, 0.15);
+        color: var(--green);
+      }
+      .off {
+        background: rgba(237, 66, 69, 0.15);
+        color: var(--red);
+      }
+      select,
+      button {
+        border-radius: 8px;
+        border: 1px solid #333;
+        padding: 7px 14px;
+        background: var(--card2);
+        color: var(--text);
+        cursor: pointer;
+        font-size: 0.85rem;
+      }
+      button:hover {
+        border-color: var(--accent);
+      }
+      #guildPanel {
+        display: none;
+        background: var(--card);
+        border-radius: 12px;
+        padding: 22px;
+        margin-top: 16px;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+      }
+      .row label {
+        min-width: 170px;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      input {
+        background: var(--card2);
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 8px 12px;
+        color: var(--text);
+        flex: 1;
+        min-width: 200px;
+      }
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+      .save {
+        background: var(--accent);
+        border: none;
+        font-weight: 600;
+      }
+      #toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--green);
+        color: #fff;
+        padding: 10px 22px;
+        border-radius: 10px;
+        display: none;
+        font-size: 0.9rem;
+      }
+      #login {
+        max-width: 380px;
+        margin: 120px auto;
+        background: var(--card);
+        padding: 32px;
+        border-radius: 14px;
+        text-align: center;
+      }
+      #login input {
+        width: 100%;
+        margin-top: 14px;
+      }
+      .lb-xp {
+        color: var(--gold);
+        font-weight: 600;
+      }
+      .empty {
+        color: var(--muted);
+        text-align: center;
+        padding: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="login">
+      <h2>🔐 כניסה לפאנל</h2>
+      <input
+        type="password"
+        id="tokenInput"
+        placeholder="הזן סיסמת פאנל (DASHBOARD_TOKEN)"
+      />
+      <button
+        class="save"
+        style="width: 100%; margin-top: 14px"
+        onclick="doLogin()"
+      >
+        כניסה
+      </button>
+    </div>
+
+    <div id="app" style="display: none">
+      <header>
+        <h1>🎮 PixelCraft <span>Bot Panel</span></h1>
+        <div id="status">
+          <span class="dot"></span><span id="statusText">טוען...</span>
+        </div>
+      </header>
+      <main>
+        <div class="stats">
+          <div class="stat">
+            <div class="num" id="stGuilds">0</div>
+            <div class="lbl">שרתים</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="stUsers">0</div>
+            <div class="lbl">משתמשים במעקב</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="stGives">0</div>
+            <div class="lbl">הגרלות</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="stUptime">0</div>
+            <div class="lbl">זמן פעילות (שניות)</div>
+          </div>
+        </div>
+
+        <h2>🌐 שרתים</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>שרת</th>
+              <th>ID</th>
+              <th>IP</th>
+              <th>וולקאם</th>
+              <th>ניהול</th>
+            </tr>
+          </thead>
+          <tbody id="guildRows">
+            <tr>
+              <td colspan="5" class="empty">טוען...</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div id="guildPanel">
+          <h2 style="margin-top: 0">
+            ⚙️ הגדרות: <span id="panelGuildName"></span>
+          </h2>
+          <div class="row">
+            <label>IP שרת המשחק</label><input id="cfg-serverIp" /><button
+              class="save"
+              onclick="saveCfg('serverIp')"
+            >
+              שמור
+            </button>
+          </div>
+          <div class="row">
+            <label>גרסת השרת</label><input id="cfg-serverVersion" /><button
+              class="save"
+              onclick="saveCfg('serverVersion')"
+            >
+              שמור
+            </button>
+          </div>
+          <div class="row">
+            <label>קטגוריית טיקטים (ID)</label
+            ><input id="cfg-ticketCategory" /><button
+              class="save"
+              onclick="saveCfg('ticketCategory')"
+            >
+              שמור
+            </button>
+          </div>
+          <div class="row">
+            <label>ערוץ לוגים (ID)</label
+            ><input id="cfg-logsChannelId" /><button
+              class="save"
+              onclick="saveCfg('logsChannelId')"
+            >
+              שמור
+            </button>
+          </div>
+          <div class="row">
+            <label>רול אוטומטי (ID)</label><input id="cfg-autoRoleId" /><button
+              class="save"
+              onclick="saveCfg('autoRoleId')"
+            >
+              שמור
+            </button>
+          </div>
+
+          <h2>🏆 לוח הישגים - 25 המובילים</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>משתמש</th>
+                <th>הודעות</th>
+                <th>XP</th>
+                <th>רמה</th>
+              </tr>
+            </thead>
+            <tbody id="lbRows"></tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+    <div id="toast"></div>
+
+    <script>
+      let TOKEN = localStorage.getItem("dashToken") || "";
+      const H = () => ({
+        "Content-Type": "application/json",
+        "x-dashboard-token": TOKEN,
+      });
+      let currentGuild = null;
+
+      function toast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.style.display = "block";
+        setTimeout(() => (t.style.display = "none"), 2200);
+      }
+
+      function doLogin() {
+        TOKEN = document.getElementById("tokenInput").value.trim();
+        localStorage.setItem("dashToken", TOKEN);
+        boot();
+      }
+
+      async function api(url, opts = {}) {
+        const r = await fetch(url, { headers: H(), ...opts });
+        if (r.status === 401) {
+          showLogin();
+          throw new Error("unauthorized");
+        }
+        return r.json();
+      }
+
+      function showLogin() {
+        document.getElementById("login").style.display = "block";
+        document.getElementById("app").style.display = "none";
+      }
+
+      async function boot() {
+        try {
+          const st = await api("/api/status");
+          document.getElementById("login").style.display = "none";
+          document.getElementById("app").style.display = "block";
+          document.getElementById("stGuilds").textContent = st.guilds;
+          document.getElementById("stUsers").textContent = st.trackedUsers;
+          document.getElementById("stGives").textContent = st.giveaways;
+          document.getElementById("stUptime").textContent = Math.floor(
+            st.uptime,
+          );
+          document.getElementById("statusText").textContent =
+            "הבוט מחובר ופעיל";
+          loadGuilds();
+        } catch (e) {
+          /* login shown */
+        }
+      }
+
+      async function loadGuilds() {
+        const guilds = await api("/api/guilds");
+        const tb = document.getElementById("guildRows");
+        if (!guilds.length) {
+          tb.innerHTML =
+            '<tr><td colspan="5" class="empty">אין שרתים</td></tr>';
+          return;
+        }
+        tb.innerHTML = guilds
+          .map(
+            (g) => `
+        <tr>
+            <td>${g.name}</td>
+            <td style="direction:ltr">${g.id}</td>
+            <td>${g.serverIp || "-"}</td>
+            <td><span class="badge ${g.welcome ? "on" : "off"}">${g.welcome ? "פעיל" : "כבוי"}</span></td>
+            <td><button onclick="openGuild('${g.id}', '${g.name.replace(/'/g, "")}')">נהל</button></td>
+        </tr>`,
+          )
+          .join("");
+      }
+
+      async function openGuild(id, name) {
+        currentGuild = id;
+        document.getElementById("panelGuildName").textContent = name;
+        document.getElementById("guildPanel").style.display = "block";
+        document
+          .getElementById("guildPanel")
+          .scrollIntoView({ behavior: "smooth" });
+        const { config } = await api("/api/guilds/" + id);
+        [
+          "serverIp",
+          "serverVersion",
+          "ticketCategory",
+          "logsChannelId",
+          "autoRoleId",
+        ].forEach(
+          (k) => (document.getElementById("cfg-" + k).value = config[k] || ""),
+        );
+        const lb = await api("/api/leaderboard/" + id);
+        document.getElementById("lbRows").innerHTML = lb.length
+          ? lb
+              .map(
+                (u, i) => `
+        <tr><td>${i + 1}</td><td style="direction:ltr">${u.userId}</td>
+        <td>${u.messages || 0}</td><td class="lb-xp">${(u.xp || 0).toLocaleString()}</td>
+        <td>${u.level || 0}</td></tr>`,
+              )
+              .join("")
+          : '<tr><td colspan="5" class="empty">אין נתונים</td></tr>';
+      }
+
+      async function saveCfg(key) {
+        const value = document.getElementById("cfg-" + key).value || null;
+        await api(`/api/guilds/${currentGuild}/config`, {
+          method: "POST",
+          body: JSON.stringify({ key, value }),
+        });
+        toast("✅ נשמר!");
+      }
+
+      boot();
+    </script>
+  </body>
+</html>
