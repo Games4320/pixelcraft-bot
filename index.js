@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const { onInviteCreate, onInviteDelete } = require('./utils/inviteTracker');
+const cloudBackup = require('./utils/cloudBackup');
 
 // Optional lightweight HTTP server for Render / Cloud hosting health checks
 const PORT = process.env.PORT || 3000;
@@ -96,15 +97,20 @@ client.on('error', err => {
     console.error('Discord Client Error:', err);
 });
 
-// 6. Login to Discord
-const token = process.env.DISCORD_TOKEN;
-if (!token || token === 'YOUR_BOT_TOKEN_HERE') {
-    console.log('\n====================================================');
-    console.log('⚠️ DISCORD_TOKEN is set to placeholder in .env file!');
-    console.log('Please edit the .env file and paste your bot token.');
-    console.log('====================================================\n');
-} else {
-    client.login(token).catch(err => {
-        console.error('Failed to log in to Discord:', err.message);
-    });
+// 6. Cloud Backup: restore latest data before the bot touches the DB, then auto-save
+async function startBot() {
+    await cloudBackup.restoreFromCloud();
+    cloudBackup.startAutoBackup(10);
+    const token = process.env.DISCORD_TOKEN;
+    if (!token || token === 'YOUR_BOT_TOKEN_HERE') {
+        console.log('\n====================================================');
+        console.log('⚠️ DISCORD_TOKEN is set to placeholder in .env file!');
+        console.log('Please edit the .env file and paste your bot token.');
+        console.log('====================================================\n');
+    } else {
+        client.login(token).catch(err => {
+            console.error('Failed to log in to Discord:', err.message);
+        });
+    }
 }
+startBot();
