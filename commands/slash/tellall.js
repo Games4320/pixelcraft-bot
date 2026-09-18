@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const {
   createErrorEmbed,
   createSuccessEmbed,
@@ -42,9 +42,15 @@ module.exports = {
       }
 
       try {
-        await member.send(
-          `📨 **הודעה מהשרת ${interaction.guild.name}:**\n\n${text}`,
-        );
+        await member.send({
+          embeds: [
+            new EmbedBuilder()
+              .setColor(0x9b59b6)
+              .setTitle(`📨 הודעה מהשרת ${interaction.guild.name}`)
+              .setDescription(text)
+              .setTimestamp(),
+          ],
+        });
         sent++;
       } catch {
         failed++;
