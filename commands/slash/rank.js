@@ -28,23 +28,13 @@ module.exports = {
         const progressBar = '🟩'.repeat(filledBlocks) + '⬛'.repeat(emptyBlocks);
 
         const embed = createEmbed({
-            title: `📊 פרופיל דרגה ו-XP`,
-            thumbnail: targetUser.displayAvatarURL({ dynamic: true }),
+            title: `דרגה של ${targetUser.username}`,
             color: COLORS.PRIMARY,
-            fields: [
-                { name: '👤 משתמש', value: `${targetUser}`, inline: true },
-                { name: '⭐ רמה נוכחית', value: `**רמה ${progress.level}**`, inline: true },
-                { name: '✨ סה"כ XP', value: `**${progress.totalXP.toLocaleString()}** XP *(מצטבר לתמיד)*`, inline: true },
-                {
-                    name: `📈 התקדמות לרמה ${progress.level + 1}`,
-                    value: `${progressBar} **${progress.percent}%**\n` +
-                           `• סה"כ התקדמות: **${progress.totalXP.toLocaleString()} / ${progress.nextLevelTotalXP.toLocaleString()} XP**\n` +
-                           `• נותרו עוד **${progress.xpRemainingToNextLevel} XP** לרמה **${progress.level + 1}**`,
-                    inline: false
-                },
-                { name: '💬 סה"כ הודעות בצ\'אט', value: `\`${(profile.messages || 0).toLocaleString()}\``, inline: true }
-            ],
-            footerText: `${interaction.guild.name} • מרוויחים 15-25 XP על כל הודעה בצ'אט (ה-XP נשמר לתמיד!)`
+            description:
+                `**רמה ${progress.level}** — ${progress.totalXP.toLocaleString()} XP\n` +
+                `${progressBar} ${progress.percent}%\n` +
+                `עוד ${progress.xpRemainingToNextLevel} XP לרמה ${progress.level + 1}`,
+            footerText: `${(profile.messages || 0).toLocaleString()} הודעות`
         });
 
         await interaction.reply({ embeds: [embed] });

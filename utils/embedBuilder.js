@@ -1,21 +1,19 @@
 const { EmbedBuilder } = require('discord.js');
 
 const COLORS = {
-    PRIMARY: 0x5865F2, // Discord Blurple
-    SUCCESS: 0x57F287, // Emerald Green
-    WARNING: 0xFEE75C, // Gold Yellow
-    ERROR: 0xED4245,   // Crimson Red
-    INFO: 0x3498DB,    // Ice Blue
-    PURPLE: 0x9B59B6   // Elegant Purple
+    PRIMARY: 0x8B8FA3, // Muted gray-blue — calm default
+    SUCCESS: 0x7BAF8E, // Soft sage green
+    WARNING: 0xC9B27C, // Muted sand
+    ERROR: 0xC07A7A,   // Soft dusty rose
+    INFO: 0x7C9CB5,    // Muted steel blue
+    PURPLE: 0x9B8CB5   // Soft lavender
 };
 
 /**
  * Creates a standard styled embed
  */
 function createEmbed({ title, description, color = COLORS.PRIMARY, fields = [], footerText, thumbnail, author, guild }) {
-    const embed = new EmbedBuilder()
-        .setColor(color)
-        .setTimestamp();
+    const embed = new EmbedBuilder().setColor(color);
 
     if (title) embed.setTitle(title);
     if (description) embed.setDescription(description);
@@ -27,6 +25,7 @@ function createEmbed({ title, description, color = COLORS.PRIMARY, fields = [], 
     } else if (guild && guild.name) {
         embed.setFooter({ text: guild.name, iconURL: guild.iconURL ? guild.iconURL({ dynamic: true }) : undefined });
     }
+    // keep embeds light: no timestamps by default, no heavy decoration
 
     return embed;
 }
@@ -37,9 +36,7 @@ function createEmbed({ title, description, color = COLORS.PRIMARY, fields = [], 
 function createErrorEmbed(message) {
     return new EmbedBuilder()
         .setColor(COLORS.ERROR)
-        .setTitle('❌ שגיאה')
-        .setDescription(message)
-        .setTimestamp();
+        .setDescription(message);
 }
 
 /**
@@ -48,9 +45,7 @@ function createErrorEmbed(message) {
 function createSuccessEmbed(title, description) {
     return new EmbedBuilder()
         .setColor(COLORS.SUCCESS)
-        .setTitle(`✅ ${title}`)
-        .setDescription(description)
-        .setTimestamp();
+        .setDescription(title && description ? `**${title}**\n${description}` : (description || title));
 }
 
 module.exports = {

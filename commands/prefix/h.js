@@ -14,12 +14,47 @@ module.exports = {
         const fullInput = args.join(' ').trim();
 
         if (!fullInput) {
-            const errorEmbed = createErrorEmbed(
-                'אנא ספק סיבה לבקשת התמיכה שלך.\n' +
-                '**שימוש:** `!h <סיבה>` או `!h <קטגוריה> <סיבה>`\n' +
-                '**דוגמה:** `!h תמיכה יש לי תקלה בשרת`'
-            );
-            return message.reply({ embeds: [errorEmbed] });
+            // No input at all — proceed with a neutral placeholder reason
+            const config = getGuildConfig(message.guild.id);
+            const template = config.hMessage || "תודה שפנית אלינו! חבר צוות יטפל בבקשתך בהקדם.\n**קטגוריה:** {category}\n**סיבה:** {reason}";
+
+            let formattedMessage = template
+                .replace(/{category}/g, 'תמיכה כללית')
+                .replace(/{reason}/g, 'אין סיבה')
+                .replace(/{server}|{guild}|{servername}/g, message.guild.name)
+                .replace(/{user}|{member}/g, `${message.author}`);
+
+            const parsed = parseAndFormatMentions(formattedMessage, message.guild);
+            formattedMessage = parsed.formattedText;
+
+            const embed = createEmbed({
+                title: `🛠️ פניית תמיכה - ${message.guild.name}`,
+                description: formattedMessage,
+                color: COLORS.PRIMARY,
+                fields: [
+                    { name: '👤 נשלח על ידי', value: `${message.author} (${message.author.tag})`, inline: true },
+                    { name: '🏷️ קטגוריה', value: `\`תמיכה כללית\``, inline: true },
+                    { name: '📌 סטטוס', value: '⏳ ממתין לטיפול צוות', inline: true },
+                    { name: '👨\u200d💼 שוייך ל', value: 'טרם שוייך', inline: true }
+                ],
+                thumbnail: message.author.displayAvatarURL({ dynamic: true }),
+                footerText: `${message.guild.name} • מערכת תמיכה`
+            });
+
+            const claimBtn = new ButtonBuilder()
+                .setCustomId('h_claim_btn')
+                .setLabel('📌 שייך אליי')
+                .setStyle(ButtonStyle.Success);
+
+            await message.delete().catch(() => {});
+            await message.channel.send({
+                embeds: [embed],
+                components: [new ActionRowBuilder().addComponents(claimBtn)],
+                allowedMentions: { parse: ['roles', 'users', 'everyone'] }
+            });
+
+            cooldowns.set(`${message.guild.id}_${message.author.id}`, Date.now() + (COOLDOWN_SECONDS * 1000));
+            return;
         }
 
         // Check 30-second cooldown per user
@@ -45,8 +80,11 @@ module.exports = {
         const firstWord = args[0].toLowerCase();
         if (knownCategories.includes(firstWord) && args.length > 1) {
             category = args[0];
-            reason = args.slice(1).join(' ');
+            reason = args.slice(1).join(' ').trim();
         }
+
+        // No reason given -> show a neutral placeholder instead of leaving it empty
+        if (!reason) reason = 'אין סיבה';
 
         const config = getGuildConfig(message.guild.id);
         const template = config.hMessage || "תודה שפנית אלינו! חבר צוות יטפל בבקשתך בהקדם.\n**קטגוריה:** {category}\n**סיבה:** {reason}";

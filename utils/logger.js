@@ -28,9 +28,9 @@ async function logMessageDelete(guild, { author, channel, content, attachments =
     const cleanContent = content ? (content.length > 1000 ? content.slice(0, 1000) + '...' : content) : '*ללא תוכן טקסטואלי*';
 
     const fields = [
-        { name: '👤 נשלח על ידי', value: authorText, inline: true },
-        { name: '📁 בערוץ', value: channelText, inline: true },
-        { name: '💬 תוכן ההודעה שנמחקה', value: cleanContent, inline: false }
+        { name: 'משתמש', value: authorText, inline: true },
+        { name: 'ערוץ', value: channelText, inline: true },
+        { name: 'תוכן שנמחק', value: cleanContent, inline: false }
     ];
 
     if (attachments.length > 0) {
@@ -38,7 +38,7 @@ async function logMessageDelete(guild, { author, channel, content, attachments =
     }
 
     const embed = createEmbed({
-        title: '🗑️ הודעה נמחקה',
+        title: 'הודעה נמחקה',
         color: COLORS.ERROR,
         thumbnail: author?.displayAvatarURL({ dynamic: true }) || null,
         fields,
@@ -63,14 +63,14 @@ async function logMessageEdit(guild, { author, channel, oldContent, newContent, 
     const cleanNew = newContent ? (newContent.length > 800 ? newContent.slice(0, 800) + '...' : newContent) : '*ללא תוכן*';
 
     const embed = createEmbed({
-        title: '✏️ הודעה נערכה',
+        title: 'הודעה נערכה',
         color: COLORS.WARNING,
         thumbnail: author?.displayAvatarURL({ dynamic: true }) || null,
         fields: [
-            { name: '👤 נערך על ידי', value: authorText, inline: true },
-            { name: '📁 בערוץ', value: channelText, inline: true },
-            { name: '📝 לפני העריכה', value: cleanOld, inline: false },
-            { name: '✨ אחרי העריכה', value: cleanNew, inline: false }
+            { name: 'משתמש', value: authorText, inline: true },
+            { name: 'ערוץ', value: channelText, inline: true },
+            { name: 'לפני', value: cleanOld, inline: false },
+            { name: 'אחרי', value: cleanNew, inline: false }
         ],
         footerText: `מערכת לוגים • ${new Date().toLocaleTimeString('he-IL')}`
     });
@@ -93,18 +93,17 @@ async function logMemberJoin(guild, member, inviter = null) {
     const inviterText = inviter ? `${inviter} (\`${inviter.tag}\`)` : 'לא ידוע / קישור ישיר';
 
     const embed = createEmbed({
-        title: '🚪 חבר חדש הצטרף לשרת',
+        title: 'חבר חדש',
         description: `ברוך הבא ${member}!`,
         color: COLORS.SUCCESS,
         thumbnail: member.user.displayAvatarURL({ dynamic: true }),
         fields: [
-            { name: '👤 משתמש', value: `${member} (\`${member.user.tag}\`)`, inline: true },
-            { name: '🆔 מזהה משתמש', value: `\`${member.id}\``, inline: true },
-            { name: '📅 גיל המשתמש', value: `<t:${createdTimestamp}:F> (<t:${createdTimestamp}:R>)`, inline: false },
-            { name: '📩 הוזמן על ידי', value: inviterText, inline: true },
-            { name: '👥 סה"כ חברים בשרת', value: `\`${guild.memberCount}\``, inline: true }
+            { name: 'משתמש', value: `${member} (\`${member.user.tag}\`)`, inline: true },
+            { name: 'מזהה', value: `\`${member.id}\``, inline: true },
+            { name: 'הוזמן על ידי', value: inviterText, inline: true },
+            { name: 'חברים בשרת', value: `\`${guild.memberCount}\``, inline: true }
         ],
-        footerText: `מערכת לוגים • ${new Date().toLocaleTimeString('he-IL')}`
+        footerText: new Date().toLocaleTimeString('he-IL')
     });
 
     await logsChannel.send({ embeds: [embed] }).catch(() => {});
@@ -121,16 +120,15 @@ async function logMemberLeave(guild, member) {
     const joinedText = joinedTimestamp ? `<t:${joinedTimestamp}:R>` : 'לא ידוע';
 
     const embed = createEmbed({
-        title: '🚪 חבר עזב את השרת',
+        title: 'חבר עזב',
         description: `${member.user.tag} עזב את השרת.`,
         color: COLORS.ERROR,
-        thumbnail: member.user.displayAvatarURL({ dynamic: true }),
         fields: [
-            { name: '👤 משתמש', value: `${member.user.tag} (\`${member.id}\`)`, inline: true },
-            { name: '📅 הצטרף לשרת', value: joinedText, inline: true },
-            { name: '👥 סה"כ חברים נותרו', value: `\`${guild.memberCount}\``, inline: true }
+            { name: 'משתמש', value: `${member.user.tag} (\`${member.id}\`)`, inline: true },
+            { name: 'הצטרף', value: joinedText, inline: true },
+            { name: 'חברים נותרו', value: `\`${guild.memberCount}\``, inline: true }
         ],
-        footerText: `מערכת לוגים • ${new Date().toLocaleTimeString('he-IL')}`
+        footerText: new Date().toLocaleTimeString('he-IL')
     });
 
     await logsChannel.send({ embeds: [embed] }).catch(() => {});
@@ -144,23 +142,22 @@ async function logVoiceState(guild, member, type, channelName) {
     if (!logsChannel) return;
 
     const typeConfig = {
-        join: { title: '🎙️ התחבר לשיחה קולית', color: COLORS.SUCCESS, desc: `${member} התחבר לערוץ **${channelName}**` },
-        leave: { title: '🔇 התנתק משיחה קולית', color: COLORS.ERROR, desc: `${member} עזב את הערוץ **${channelName}**` },
-        switch: { title: '🔄 עבר ערוץ שיחה', color: COLORS.PRIMARY, desc: `${member} עבר לערוץ **${channelName}**` }
+        join: { title: 'התחבר לשיחה קולית', color: COLORS.SUCCESS, desc: `${member} התחבר לערוץ **${channelName}**` },
+        leave: { title: 'התנתק משיחה קולית', color: COLORS.ERROR, desc: `${member} עזב את הערוץ **${channelName}**` },
+        switch: { title: 'עבר ערוץ שיחה', color: COLORS.PRIMARY, desc: `${member} עבר לערוץ **${channelName}**` }
     };
 
-    const info = typeConfig[type] || { title: '🎙️ עדכון שיחה קולית', color: COLORS.PRIMARY, desc: `${member}: ${channelName}` };
+    const info = typeConfig[type] || { title: 'עדכון שיחה קולית', color: COLORS.PRIMARY, desc: `${member}: ${channelName}` };
 
     const embed = createEmbed({
         title: info.title,
         description: info.desc,
         color: info.color,
-        thumbnail: member.user.displayAvatarURL({ dynamic: true }),
         fields: [
-            { name: '👤 משתמש', value: `${member} (\`${member.user.tag}\`)`, inline: true },
-            { name: '📁 ערוץ', value: `\`${channelName}\``, inline: true }
+            { name: 'משתמש', value: `${member} (\`${member.user.tag}\`)`, inline: true },
+            { name: 'ערוץ', value: `\`${channelName}\``, inline: true }
         ],
-        footerText: `מערכת לוגים • ${new Date().toLocaleTimeString('he-IL')}`
+        footerText: new Date().toLocaleTimeString('he-IL')
     });
 
     await logsChannel.send({ embeds: [embed] }).catch(() => {});
@@ -184,17 +181,16 @@ async function logAutoMod(guild, { member, channel, reason, content }) {
     const cleanContent = content ? (content.length > 800 ? content.slice(0, 800) + '...' : content) : '*ללא תוכן*';
 
     const embed = createEmbed({
-        title: '🛡️ תפיסת Auto-Mod',
-        description: `הודעה נחסמה ונמחקה על ידי מערכת ההגנה האוטומטית.`,
+        title: 'Auto-Mod',
+        description: `הודעה נחסמה על ידי מערכת ההגנה האוטומטית.`,
         color: COLORS.ERROR,
-        thumbnail: member?.user?.displayAvatarURL({ dynamic: true }) || null,
         fields: [
-            { name: '👤 משתמש', value: member ? `${member} (\`${member.user.tag}\`)` : 'לא ידוע', inline: true },
-            { name: '📁 בערוץ', value: channel ? `${channel}` : 'לא ידוע', inline: true },
-            { name: '📌 סיבת חסימה', value: `**${reasonText}**`, inline: false },
-            { name: '💬 תוכן שנחסם', value: `\`\`\`\n${cleanContent}\n\`\`\``, inline: false }
+            { name: 'משתמש', value: member ? `${member} (\`${member.user.tag}\`)` : 'לא ידוע', inline: true },
+            { name: 'ערוץ', value: channel ? `${channel}` : 'לא ידוע', inline: true },
+            { name: 'סיבה', value: `**${reasonText}**`, inline: false },
+            { name: 'תוכן שנחסם', value: `\`\`\`\n${cleanContent}\n\`\`\``, inline: false }
         ],
-        footerText: `Auto-Mod • ${new Date().toLocaleTimeString('he-IL')}`
+        footerText: new Date().toLocaleTimeString('he-IL')
     });
 
     await logsChannel.send({ embeds: [embed] }).catch(() => {});

@@ -47,15 +47,9 @@ module.exports = {
                     const xpResult = addXP(message.guild.id, message.author.id, randomXP);
 
                     if (xpResult.leveledUp) {
-                        const nextLevelXP = (xpResult.newLevel + 1) * 150;
                         const levelEmbed = createEmbed({
-                            title: '🎉 עלית רמה!',
-                            description: `כל הכבוד ${message.author}! עלית מ**רמה ${xpResult.oldLevel}** ל**רמה ${xpResult.newLevel}**! ⭐\n\n` +
-                                         `✨ **סה"כ XP מצטבר:** **${xpResult.xp.toLocaleString()} XP** *(ה-XP נשמר לתמיד ולא מתאפס!)*\n` +
-                                         `🎯 **הרמה הבאה (רמה ${xpResult.newLevel + 1}):** ב-**${nextLevelXP.toLocaleString()} XP**`,
-                            color: COLORS.SUCCESS,
-                            thumbnail: message.author.displayAvatarURL({ dynamic: true }),
-                            footerText: `${message.guild.name} • מערכת רמות ו-XP`
+                            description: `${message.author} עלה ל**רמה ${xpResult.newLevel}**`,
+                            color: COLORS.SUCCESS
                         });
 
                         const config = getGuildConfig(message.guild.id);
